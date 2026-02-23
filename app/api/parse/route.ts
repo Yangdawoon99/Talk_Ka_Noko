@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { spawn } from "child_process"
 import path from "path"
-import OpenAI from "openai"
+import { GoogleGenerativeAI } from "@google/generative-ai"
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
+const model = genAI.getGenerativeModel({
+  model: "gemini-flash-latest",
+  systemInstruction: "당신은 연애 분석 전문가 'Love Data Architect'입니다. 카카오톡 대화 내용을 분석하여 두 사람의 관계를 흥미롭고 위트 있게 분석해주세요. 결과는 반드시 한국어 JSON 형식으로 응답하세요.",
+  generationConfig: { responseMimeType: "application/json" }
 })
 
 export async function POST(req: NextRequest) {
@@ -61,41 +64,40 @@ export async function POST(req: NextRequest) {
     const parsedData = JSON.parse(resultData)
 
     let aiAnalysis = null
+    let aiError = null
+
     if (shouldAnalyze && parsedData && parsedData.length > 0) {
-      // Free Tier optimization: sample only the most recent messages for AI
-      const sampleSize = 50
-      const chatSample = parsedData.slice(-sampleSize).map((m: any) =>
-        `${m.sender || "알수없음"}: ${m.message}`
-      ).join("\n")
+      try {
+        // Free Tier optimization: sample messages
+        const sampleSize = 50
+        const chatSample = parsedData.slice(-sampleSize).map((m: any) =>
+          `${m.sender || "알수없음"}: ${m.message}`
+        ).join("\n")
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: "당신은 연애 분석 전문가 'Love Data Architect'입니다. 카카오톡 대화 내용을 분석하여 두 사람의 관계를 흥미롭고 위트 있게 분석해주세요. 결과는 반드시 한국어 JSON 형식으로 응답하세요. keys: { score: 0-100, keyword: '짧은 관계 명칭', active_sender: '더 적극적인 사람 이름', nighttime_rate: 0-100, summary: '한 줄 요약(30자 이내)' }",
-          },
-          {
-            role: "user",
-            content: `다음 대화 내용을 분석해줘:\n\n${chatSample}`,
-          },
-        ],
-        response_format: { type: "json_object" },
-      })
+        const result = await model.generateContent(`명시된 형식 키에 맞춰 다음 대화 내용을 분석해줘:\n\n${chatSample}`);
 
-      const content = completion.choices[0].message.content
-      if (content) {
-        aiAnalysis = JSON.parse(content)
+        const content = result.response.text()
+        if (content) {
+          aiAnalysis = JSON.parse(content)
+        }
+      } catch (err: any) {
+        console.error("Gemini Analysis Failed:", err)
+        aiError = err.message || "AI 분석 중 오류가 발생했습니다."
       }
     }
 
     return NextResponse.json({
       success: true,
       data: parsedData,
-      analysis: aiAnalysis
+      analysis: aiAnalysis,
+      aiError: aiError
     })
-  } catch (error) {
-    console.error("Parsing API Error:", error)
-    return NextResponse.json({ error: "Failed to parse file" }, { status: 500 })
+  } catch (error: any) {
+    console.error("Parsing API Error 상세:", error)
+    const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다."
+    return NextResponse.json({
+      error: "Failed to parse file",
+      details: errorMessage
+    }, { status: 500 })
   }
 }

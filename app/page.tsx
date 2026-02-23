@@ -12,6 +12,7 @@ export default function Home() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [parsedData, setParsedData] = useState<any>(null)
   const [analysis, setAnalysis] = useState<any>(null)
+  const [aiError, setAiError] = useState<string | null>(null)
 
   return (
     <div className="flex flex-col min-h-dvh bg-background max-w-lg mx-auto">
@@ -23,13 +24,29 @@ export default function Home() {
           onAnalysisStart={() => {
             setIsAnalyzing(true)
             setAnalysis(null)
+            setAiError(null)
           }}
-          onAnalysisComplete={(data, aiAnalysis) => {
+          onAnalysisComplete={(data, aiAnalysis, aiError) => {
             setParsedData(data)
             setAnalysis(aiAnalysis)
+            setAiError(aiError)
             setIsAnalyzing(false)
           }}
+        // We can't easily change the prop signature without updating UploadArea again
+        // but we can handle the result in onAnalysisComplete
         />
+
+        {parsedData && !analysis && !isAnalyzing && (
+          <div className="px-6 py-4 animate-in fade-in duration-500">
+            <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 flex flex-col gap-2">
+              <p className="text-sm font-bold text-destructive">AI 분석에 실패했습니다.</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                OpenAI API 쿼터 초과 또는 키 설정 문제일 수 있습니다. (오류: {aiError || "quota_exceeded"})
+                기본 파싱 결과(메시지 {parsedData.length}개)는 정상적으로 불러왔습니다.
+              </p>
+            </div>
+          </div>
+        )}
 
         {analysis && (
           <div className="px-6 py-8 flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">

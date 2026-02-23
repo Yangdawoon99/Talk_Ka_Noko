@@ -5,7 +5,7 @@ import { Upload, FileText, X } from "lucide-react"
 
 interface UploadAreaProps {
   onAnalysisStart: () => void
-  onAnalysisComplete: (data: any, aiAnalysis: any) => void
+  onAnalysisComplete: (data: any, aiAnalysis: any, aiError: string | null) => void
 }
 
 export function UploadArea({ onAnalysisStart, onAnalysisComplete }: UploadAreaProps) {
@@ -62,11 +62,11 @@ export function UploadArea({ onAnalysisStart, onAnalysisComplete }: UploadAreaPr
       if (!response.ok) throw new Error("Upload failed")
 
       const result = await response.json()
-      onAnalysisComplete(result.data, result.analysis)
+      onAnalysisComplete(result.data, result.analysis, result.aiError)
     } catch (error) {
       console.error("Analysis Error:", error)
       alert("분석 중 오류가 발생했습니다.")
-      onAnalysisComplete(null)
+      onAnalysisComplete(null, null, (error as any).message || "분석 실패")
     } finally {
       setIsUploading(false)
     }
