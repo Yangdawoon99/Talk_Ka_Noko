@@ -3,9 +3,15 @@
 import { useState, useCallback } from "react"
 import { Upload, FileText, X } from "lucide-react"
 
-export function UploadArea() {
+interface UploadAreaProps {
+  onAnalysisStart: () => void
+  onAnalysisComplete: (data: any) => void
+}
+
+export function UploadArea({ onAnalysisStart, onAnalysisComplete }: UploadAreaProps) {
   const [file, setFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -37,6 +43,34 @@ export function UploadArea() {
     setFile(null)
   }, [])
 
+  const handleAnalyze = useCallback(async () => {
+    if (!file) return
+
+    setIsUploading(true)
+    onAnalysisStart()
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/parse", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) throw new Error("Upload failed")
+
+      const result = await response.json()
+      onAnalysisComplete(result.data)
+    } catch (error) {
+      console.error("Analysis Error:", error)
+      alert("분석 중 오류가 발생했습니다.")
+      onAnalysisComplete(null)
+    } finally {
+      setIsUploading(false)
+    }
+  }, [file, onAnalysisStart, onAnalysisComplete])
+
   return (
     <section className="px-6 py-4">
       {!file ? (
@@ -45,11 +79,10 @@ export function UploadArea() {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-200 ${
-            isDragging
-              ? "border-primary bg-primary/10 scale-[1.02]"
-              : "border-border bg-secondary/50 hover:border-primary/50 hover:bg-secondary"
-          }`}
+          className={`flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-200 ${isDragging
+            ? "border-primary bg-primary/10 scale-[1.02]"
+            : "border-border bg-secondary/50 hover:border-primary/50 hover:bg-secondary"
+            }`}
         >
           <div className="flex items-center justify-center w-14 h-14 rounded-full bg-primary/15">
             <Upload className="w-6 h-6 text-primary" />
@@ -72,24 +105,34 @@ export function UploadArea() {
           />
         </label>
       ) : (
-        <div className="flex items-center gap-3 p-4 rounded-2xl bg-secondary/50 border border-border">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/15 shrink-0">
-            <FileText className="w-5 h-5 text-primary" />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-sm font-medium text-foreground truncate">
-              {file.name}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {(file.size / 1024).toFixed(1)} KB
-            </span>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3 p-4 rounded-2xl bg-secondary/50 border border-border">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/15 shrink-0">
+              <FileText className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-medium text-foreground truncate">
+                {file.name}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {(file.size / 1024).toFixed(1)} KB
+              </span>
+            </div>
+            <button
+              onClick={handleRemoveFile}
+              disabled={isUploading}
+              className="ml-auto flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
+              aria-label="파일 제거"
+            >
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
           </div>
           <button
-            onClick={handleRemoveFile}
-            className="ml-auto flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted transition-colors"
-            aria-label="파일 제거"
+            onClick={handleAnalyze}
+            disabled={isUploading}
+            className="w-full py-4 px-6 rounded-2xl bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100"
           >
-            <X className="w-4 h-4 text-muted-foreground" />
+            {isUploading ? "분석 중..." : "지금 바로 분석하기"}
           </button>
         </div>
       )}

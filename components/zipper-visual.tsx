@@ -2,15 +2,23 @@
 
 import { useEffect, useState } from "react"
 
-export function ZipperVisual() {
+interface ZipperVisualProps {
+  forcedIsAnalyzing?: boolean
+}
+
+export function ZipperVisual({ forcedIsAnalyzing }: ZipperVisualProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   useEffect(() => {
+    if (forcedIsAnalyzing !== undefined) {
+      setIsAnalyzing(forcedIsAnalyzing)
+      return
+    }
     const interval = setInterval(() => {
       setIsAnalyzing((prev) => !prev)
     }, 2400)
     return () => clearInterval(interval)
-  }, [])
+  }, [forcedIsAnalyzing])
 
   return (
     <section className="flex items-center justify-center px-6 py-10" aria-label="Chat analysis visual">
