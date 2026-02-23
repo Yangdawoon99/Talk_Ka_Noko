@@ -8,11 +8,44 @@ import { UploadArea } from "@/components/upload-area"
 import { StickyFooter } from "@/components/sticky-footer"
 import { ReportCard } from "@/components/report-card"
 
+import { ContextSurvey } from "@/components/context-survey"
+import { ActivityHeatmap } from "@/components/activity-heatmap"
+
 export default function Home() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [parsedData, setParsedData] = useState<any>(null)
   const [analysis, setAnalysis] = useState<any>(null)
   const [aiError, setAiError] = useState<string | null>(null)
+  const [showSurvey, setShowSurvey] = useState(false)
+  const [surveyContext, setSurveyContext] = useState<any>(null)
+
+  const handleAnalysisTrigger = async (context: any) => {
+    setIsAnalyzing(true)
+    setShowSurvey(false)
+    setSurveyContext(context)
+
+    try {
+      const response = await fetch("/api/parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: parsedData,
+          context: context
+        })
+      })
+
+      if (!response.ok) throw new Error("Analysis failed")
+
+      const result = await response.json()
+      setAnalysis(result.analysis)
+      setAiError(result.aiError)
+    } catch (error: any) {
+      console.error("AI analysis fail", error)
+      setAiError(error.message || "분석 실패")
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-dvh bg-background max-w-lg mx-auto">
@@ -20,21 +53,30 @@ export default function Home() {
       <main className="flex-1 pb-36">
         <HeroSection />
         <ZipperVisual forcedIsAnalyzing={isAnalyzing} />
-        <UploadArea
-          onAnalysisStart={() => {
-            setIsAnalyzing(true)
-            setAnalysis(null)
-            setAiError(null)
-          }}
-          onAnalysisComplete={(data, aiAnalysis, aiError) => {
-            setParsedData(data)
-            setAnalysis(aiAnalysis)
-            setAiError(aiError)
-            setIsAnalyzing(false)
-          }}
-        // We can't easily change the prop signature without updating UploadArea again
-        // but we can handle the result in onAnalysisComplete
-        />
+
+        {!parsedData && !isAnalyzing && (
+          <UploadArea
+            onAnalysisStart={() => {
+              setIsAnalyzing(true)
+              setAnalysis(null)
+              setAiError(null)
+            }}
+            onAnalysisComplete={(data, aiAnalysis, aiError) => {
+              setParsedData(data)
+              // We'll ignore simple aiAnalysis from UploadArea as we want survey first
+              setIsAnalyzing(false)
+              if (data && data.length > 0) {
+                setShowSurvey(true)
+              }
+            }}
+          />
+        )}
+
+        {showSurvey && parsedData && (
+          <ContextSurvey
+            onComplete={handleAnalysisTrigger}
+          />
+        )}
 
         {parsedData && !analysis && !isAnalyzing && (
           <div className="px-6 py-4 animate-in fade-in duration-500">
@@ -54,6 +96,8 @@ export default function Home() {
               <h3 className="text-xl font-bold text-foreground">관계 분석 리포트</h3>
               <p className="text-sm text-muted-foreground">{analysis.summary || "데이터 기반 관계 분석 결과입니다."}</p>
             </div>
+
+            <ActivityHeatmap hourlyData={analysis.stats?.hourly} />
 
             <div className="grid grid-cols-1 gap-4">
               {/* Free Insights */}
