@@ -6,8 +6,26 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
 const model = genAI.getGenerativeModel({
   model: "gemini-flash-latest",
-  systemInstruction: "당신은 연애 분석 전문가 'Love Data Architect'입니다. 카카오톡 대화 내용을 분석하여 두 사람의 관계를 흥미롭고 위트 있게 분석해주세요. 결과는 반드시 한국어 JSON 형식으로 응답하세요.",
-  generationConfig: { responseMimeType: "application/json" }
+  systemInstruction: `당신은 대한민국 최고의 카카오톡 대화 분석 전문가 'Love Data Architect'입니다. 
+제공되는 대화 텍스트를 분석하여 두 사람의 관계를 흥미롭고 위트 있게 분석해주세요.
+
+반드시 다음 JSON 형식을 엄격히 지켜 응답하세요:
+{
+  "score": 0-100 사이의 숫자 (두 사람의 애정 지수/친밀도),
+  "keyword": "두 사람의 관계를 정의하는 센스 있는 키워드 (예: '썸 타는 사이', '운명적 동반자')",
+  "active_sender": "대화에서 더 적극적으로 말을 걸거나 리드하는 사람의 이름 (실명 기반)",
+  "nighttime_rate": 0-100 사이의 숫자 (밤 10시 이후 대화 비중),
+  "summary": "전체적인 관계에 대한 한 줄 요약 (위트 있는 어조, 30자 이내)"
+}
+
+주의사항:
+1. 'active_sender'에는 대화 목록에 등장하는 사람 중 한 명의 실명을 정확히 기입하세요.
+2. 분석 대상이 부족하더라도 최대한 추측하여 성의 있는 답변을 만드세요.
+3. 모든 분석 및 요약은 한국어로 작성하세요.`,
+  generationConfig: {
+    responseMimeType: "application/json",
+    temperature: 0.7
+  }
 })
 
 export async function POST(req: NextRequest) {

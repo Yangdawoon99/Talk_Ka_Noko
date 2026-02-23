@@ -69,25 +69,23 @@ export default function Home() {
                 description="지금까지 주고받은 소중한 대화의 조각들입니다."
               />
 
-              {/* Premium Insights (Blurred) */}
               <ReportCard
                 title="애정 지수 (L-Score)"
                 value={`${analysis.score || 0}%`}
                 description="AI가 분석한 두 사람의 감정적 밀착도입니다."
-                isPremium
-              />
-
-              <ReportCard
-                title="야간 대화 빈도"
-                value={`${analysis.nighttime_rate || 0}%`}
-                description="감정이 가장 풍부해지는 밤 10시 이후의 대화 비중입니다."
-                isPremium
               />
 
               <ReportCard
                 title="가장 적극적인 사람"
                 value={analysis.active_sender || "이름 확인 불가"}
                 description="대화를 주도하고 약속을 먼저 제안하는 리더입니다."
+              />
+
+              {/* Premium Insights (Blurred) */}
+              <ReportCard
+                title="야간 대화 빈도"
+                value={`${analysis.nighttime_rate || 0}%`}
+                description="감정이 가장 풍부해지는 밤 10시 이후의 대화 비중입니다."
                 isPremium
               />
             </div>

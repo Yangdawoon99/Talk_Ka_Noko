@@ -48,10 +48,18 @@ def parse_kakao_talk(text):
         m_dot = mobile_dot_pattern.search(line)
         if m_dot:
             full_time, sender, message = m_dot.groups()
+            # Safe handling of time parts for mobile dot format
             time_parts = full_time.split(" ")
+            if len(time_parts) >= 4:
+                date_str = " ".join(time_parts[:3])
+                time_str = time_parts[3]
+            else:
+                date_str = current_date
+                time_str = full_time
+                
             messages.append({
-                "date": " ".join(time_parts[:3]),
-                "time": time_parts[-1],
+                "date": date_str,
+                "time": time_str,
                 "sender": sender.strip(),
                 "message": message
             })
