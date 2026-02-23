@@ -15,6 +15,11 @@ def parse_kakao_talk(text):
     mobile_dot_pattern = re.compile(r'(\d{4}\.\s\d{1,2}\.\s\d{1,2}\.\s\d{1,2}:\d{2}),\s(.+?)\s:\s(.+)')
     
     lines = text.splitlines()
+    # Optimization: Process only the last 50,000 lines if the file is too large
+    # This helps stay within Vercel timeout limits as per Phase 3 instructions
+    if len(lines) > 50000:
+        lines = lines[-50000:]
+        
     current_date = None
     for line in lines:
         line = line.strip()
