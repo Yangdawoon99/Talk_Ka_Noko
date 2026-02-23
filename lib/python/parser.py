@@ -3,70 +3,85 @@ import json
 import sys
 
 def parse_kakao_talk(text):
-    # KakaoTalk formats vary by device (Android, iOS, PC) and language
-    # Android/iOS (Korean): 2023년 10월 24일 오후 8:10, 홍길동 : 안녕하세요
-    # PC (Korean): [홍길동] [오후 8:10] 안녕하세요
-    
     messages = []
     
-    # Simple regex for PC/Desktop format: [Sender] [Time] Message
-    pc_pattern = re.compile(r'^\[(.+?)\]\s\[(오전|오후)\s(\d{1,2}:\d{2})\]\s(.+)$')
+    # PC format: [Sender] [Time] Message
+    pc_pattern = re.compile(r'\[(.+?)\]\s\[(오전|오후)\s(\d{1,2}:\d{2})\]\s(.+)')
     
-    # Simple regex for Mobile format: yyyy년 mm월 dd일 오후 hh:mm, Sender : Message
-    # Note: Date headers usually appear separately: --------------- 2023년 10월 24일 화요일 ---------------
-    mobile_pattern = re.compile(r'^(\d{4}년 \d{1,2}월 \d{1,2}일 (오전|오후) \d{1,2}:\d{2}),\s(.+?)\s:\s(.+)$')
+    # Mobile format (Korean): 2023년 10월 24일 오후 8:10, 홍길동 : 안녕하세요
+    mobile_ko_pattern = re.compile(r'(\d{4}년\s\d{1,2}월\s\d{1,2}일)\s(오전|오후)\s(\d{1,2}:\d{2}),\s(.+?)\s:\s(.+)')
     
-    current_date = None
+    # Mobile format (Dots): 2023. 10. 24. 20:10, 홍길동 : 안녕하세요
+    mobile_dot_pattern = re.compile(r'(\d{4}\.\s\d{1,2}\.\s\d{1,2}\.\s\d{1,2}:\d{2}),\s(.+?)\s:\s(.+)')
     
     lines = text.splitlines()
+    current_date = None
     for line in lines:
         line = line.strip()
         if not line:
             continue
             
-        # Check for date headers: --------------- 2023년 10월 24일 화요일 ---------------
-        date_header = re.search(r'-+ (\d{4}년 \d{1,2}월 \d{1,2}일) .+ -+', line)
+        # Date headers
+        date_header = re.search(r'-+\s*(\d{4}.+?\d{1,2}.+?\d{1,2}일?)\s*-+', line)
         if date_header:
-            current_date = date_header.group(1)
+            current_date = date_header.group(1).strip()
             continue
             
-        # Try Mobile format
-        mobile_match = mobile_pattern.match(line)
-        if mobile_match:
-            full_time, ampm, time, sender, message = mobile_match.groups()
+        # Mobile Korean
+        m_ko = mobile_ko_pattern.search(line)
+        if m_ko:
+            date, ampm, time, sender, message = m_ko.groups()
             messages.append({
-                "date": full_time.split(" ")[0] + " " + full_time.split(" ")[1] + " " + full_time.split(" ")[2],
+                "date": date.strip(),
                 "time": f"{ampm} {time}",
-                "sender": sender,
+                "sender": sender.strip(),
                 "message": message
             })
             continue
             
-        # Try PC format
-        pc_match = pc_pattern.match(line)
-        if pc_match:
-            sender, ampm, time, message = pc_match.groups()
+        # Mobile Dot
+        m_dot = mobile_dot_pattern.search(line)
+        if m_dot:
+            full_time, sender, message = m_dot.groups()
+            time_parts = full_time.split(" ")
             messages.append({
-                "date": current_date, # Uses the last detected date header
-                "time": f"{ampm} {time}",
-                "sender": sender,
+                "date": " ".join(time_parts[:3]),
+                "time": time_parts[-1],
+                "sender": sender.strip(),
                 "message": message
             })
             continue
             
-        # If line doesn't match and we have messages, it might be a multi-line message
-        if messages and not (line.startswith('-') or line.startswith('[')):
+        # PC format
+        m_pc = pc_pattern.search(line)
+        if m_pc:
+            sender, ampm, time, message = m_pc.groups()
+            messages.append({
+                "date": current_date,
+                "time": f"{ampm} {time}",
+                "sender": sender.strip(),
+                "message": message
+            })
+            continue
+            
+        # Multi-line
+        if messages:
             messages[-1]["message"] += "\n" + line
 
     return messages
 
 if __name__ == "__main__":
+    # Force UTF-8 for stdout
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
+        
     # For testing or calling from Node.js
     if len(sys.argv) > 1:
         input_text = sys.argv[1]
     else:
-        # Read from stdin if no arg
-        input_text = sys.stdin.read()
+        # Read from stdin if no arg - forcing UTF-8
+        input_text = sys.stdin.buffer.read().decode('utf-8', errors='replace')
         
     result = parse_kakao_talk(input_text)
+    sys.stderr.write(f"DEBUG: Parsed {len(result)} messages\n")
     print(json.dumps(result, ensure_ascii=False))
