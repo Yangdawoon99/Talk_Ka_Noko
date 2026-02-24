@@ -127,7 +127,11 @@ function HomeContent() {
 
   return (
     <div className="flex flex-col min-h-dvh bg-background max-w-lg mx-auto">
-      <PremiumManager setIsPremiumUser={setIsPremiumUser} />
+      {isMounted && (
+        <Suspense fallback={null}>
+          <PremiumManager setIsPremiumUser={setIsPremiumUser} />
+        </Suspense>
+      )}
       <Header />
       <main className="flex-1 pb-36">
         <HeroSection />
