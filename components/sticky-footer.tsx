@@ -19,6 +19,7 @@ export function StickyFooter() {
           />
           <button
             type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="relative w-full py-4 text-base font-bold rounded-2xl bg-primary text-primary-foreground active:scale-[0.98] transition-all duration-150 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {"카카오톡 대화 분석하기"}

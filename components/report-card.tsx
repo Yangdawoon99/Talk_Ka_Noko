@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Lock } from "lucide-react"
 
 interface ReportCardProps {
-    title: string
+    title: React.ReactNode
     value: string | number
     description: string
     isPremium?: boolean

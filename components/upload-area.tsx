@@ -9,6 +9,7 @@ interface UploadAreaProps {
 }
 
 export function UploadArea({ onAnalysisStart, onAnalysisComplete }: UploadAreaProps) {
+  console.log("CLIENT_LOG: UploadArea rendering")
   const [file, setFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
@@ -46,10 +47,12 @@ export function UploadArea({ onAnalysisStart, onAnalysisComplete }: UploadAreaPr
   const handleAnalyze = useCallback(async () => {
     if (!file) return
 
+    console.log("CLIENT_LOG: handleAnalyze started")
     setIsUploading(true)
     onAnalysisStart()
 
     try {
+      console.log("CLIENT_LOG: Sending FormData to /api/parse")
       const formData = new FormData()
       formData.append("file", file)
       formData.append("analyze", "true")
@@ -59,15 +62,18 @@ export function UploadArea({ onAnalysisStart, onAnalysisComplete }: UploadAreaPr
         body: formData,
       })
 
+      console.log(`CLIENT_LOG: Response status: ${response.status}`)
       if (!response.ok) throw new Error("Upload failed")
 
       const result = await response.json()
+      console.log(`CLIENT_LOG: Received parsed data (${result.data?.length} items)`)
       onAnalysisComplete(result.data, result.analysis, result.aiError)
     } catch (error) {
       console.error("Analysis Error:", error)
       alert("분석 중 오류가 발생했습니다.")
       onAnalysisComplete(null, null, (error as any).message || "분석 실패")
     } finally {
+      console.log("CLIENT_LOG: handleAnalyze finished")
       setIsUploading(false)
     }
   }, [file, onAnalysisStart, onAnalysisComplete])

@@ -27,6 +27,7 @@ export function ContextSurvey({ onComplete }: ContextSurveyProps) {
     })
 
     const handleComplete = () => {
+        console.log("CLIENT_LOG: ContextSurvey handleComplete called", surveyData)
         onComplete(surveyData)
     }
 
@@ -50,8 +51,8 @@ export function ContextSurvey({ onComplete }: ContextSurveyProps) {
                                         setStep(2)
                                     }}
                                     className={`flex flex-col items-center justify-center gap-3 p-4 rounded-xl border-2 transition-all ${surveyData.relationType === type.label
-                                            ? "border-primary bg-primary/10"
-                                            : "border-border/30 bg-background/50 hover:border-border"
+                                        ? "border-primary bg-primary/10"
+                                        : "border-border/30 bg-background/50 hover:border-border"
                                         }`}
                                 >
                                     <type.icon className={`w-6 h-6 ${type.color}`} />
@@ -74,8 +75,8 @@ export function ContextSurvey({ onComplete }: ContextSurveyProps) {
                                         setStep(3)
                                     }}
                                     className={`p-4 rounded-xl border-2 text-sm font-medium transition-all ${surveyData.duration === dur
-                                            ? "border-primary bg-primary/10"
-                                            : "border-border/30 bg-background/50 hover:border-border"
+                                        ? "border-primary bg-primary/10"
+                                        : "border-border/30 bg-background/50 hover:border-border"
                                         }`}
                                 >
                                     {dur}
