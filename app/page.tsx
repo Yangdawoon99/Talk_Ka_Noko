@@ -17,7 +17,6 @@ import { ActivityHeatmap } from "@/components/activity-heatmap"
 import { RelationshipRadar } from "@/components/relationship-radar"
 import { AttachmentCard } from "@/components/attachment-card"
 
-import { Suspense } from "react"
 
 console.log("CLIENT_LOG: page.tsx executing at top level")
 
