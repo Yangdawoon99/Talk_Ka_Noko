@@ -16,6 +16,8 @@ import { ContextSurvey } from "@/components/context-survey"
 import { ActivityHeatmap } from "@/components/activity-heatmap"
 import { RelationshipRadar } from "@/components/relationship-radar"
 import { AttachmentCard } from "@/components/attachment-card"
+import { PaymentModal } from "@/components/payment-modal"
+import { toast, Toaster } from "sonner"
 
 
 console.log("CLIENT_LOG: page.tsx executing at top level")
@@ -35,6 +37,9 @@ function PremiumManager({ setIsPremiumUser }: { setIsPremiumUser: (v: boolean) =
     if (searchParams.get("premium") === "true") {
       setIsPremiumUser(true)
     }
+    if (localStorage.getItem("talk_ka_noko_premium") === "true") {
+      setIsPremiumUser(true)
+    }
   }, [searchParams, setIsPremiumUser])
   return null
 }
@@ -48,12 +53,17 @@ function HomeContent() {
   const [showSurvey, setShowSurvey] = useState(false)
   const [surveyContext, setSurveyContext] = useState<any>(null)
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false)
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
   const [isPremiumUser, setIsPremiumUser] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
     console.log("CLIENT_LOG: HomeContent mounted, hydration complete")
   }, [])
+
+  useEffect(() => {
+    console.log("STATE_CHANGE: isPaymentModalOpen =", isPaymentModalOpen)
+  }, [isPaymentModalOpen])
 
   useEffect(() => {
     if (!isMounted) return
@@ -128,9 +138,24 @@ function HomeContent() {
   return (
     <div className="flex flex-col min-h-dvh bg-background max-w-lg mx-auto">
       {isMounted && (
-        <Suspense fallback={null}>
-          <PremiumManager setIsPremiumUser={setIsPremiumUser} />
-        </Suspense>
+        <>
+          <Suspense fallback={null}>
+            <PremiumManager setIsPremiumUser={setIsPremiumUser} />
+          </Suspense>
+          <PaymentModal
+            isOpen={isPaymentModalOpen}
+            onOpenChange={(val) => {
+              console.log("MODAL_STATE_CHANGE: Setting isPaymentModalOpen to", val)
+              setIsPaymentModalOpen(val)
+            }}
+            onSuccess={() => {
+              console.log("PAYMENT_SUCCESS_CALLBACK: Unlocking premium")
+              setIsPremiumUser(true)
+              localStorage.setItem("talk_ka_noko_premium", "true")
+              window.scrollTo({ top: 0, behavior: "smooth" })
+            }}
+          />
+        </>
       )}
       <Header />
       <main className="flex-1 pb-36">
@@ -140,7 +165,7 @@ function HomeContent() {
         {isPremiumUser && (
           <div className="fixed top-4 left-4 z-50 px-3 py-1 bg-yellow-400 text-yellow-950 text-[10px] font-bold rounded-full shadow-lg flex items-center gap-1 animate-pulse">
             <Sparkles className="w-3 h-3" />
-            TEST MODE: PREMIUM UNLOCKED
+            FREEMIUM: PREMIUM UNLOCKED 🔓
           </div>
         )}
 
@@ -290,7 +315,15 @@ function HomeContent() {
                     상대방의 답장에 담긴 무의식적 단어들과 시간대별 감정 변화를 분석한 단독 리포트를 확인하세요.
                   </p>
 
-                  <button className="w-full py-4 px-6 rounded-xl bg-[#FEE500] text-[#3A1D1D] font-extrabold shadow-lg shadow-yellow-500/10 hover:scale-[1.01] active:scale-[0.99] transition-all text-sm">
+                  <button
+                    onClick={(e) => {
+                      console.log("CLICKED: Payment button clicked")
+                      setIsPaymentModalOpen(true)
+                    }}
+                    type="button"
+                    className="w-full py-4 px-6 rounded-xl bg-[#FEE500] text-[#3A1D1D] font-extrabold shadow-lg shadow-yellow-500/10 hover:scale-[1.01] active:scale-[0.99] transition-all text-sm flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4 fill-[#3A1D1D]" />
                     상세 리포트 잠금 해제하기
                   </button>
                 </div>
@@ -330,6 +363,8 @@ function HomeContent() {
           isOpen={isScoreModalOpen}
           onOpenChange={setIsScoreModalOpen}
         />
+
+        <Toaster theme="dark" position="top-center" richColors />
       </main>
       <StickyFooter />
     </div>
