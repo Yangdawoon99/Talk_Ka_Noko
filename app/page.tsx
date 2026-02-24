@@ -41,7 +41,7 @@ function PremiumManager({ setIsPremiumUser }: { setIsPremiumUser: (v: boolean) =
 }
 
 function HomeContent() {
-  console.log("CLIENT_LOG: HomeContent rendering")
+  const [isMounted, setIsMounted] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [parsedData, setParsedData] = useState<any>(null)
   const [analysis, setAnalysis] = useState<any>(null)
@@ -52,13 +52,28 @@ function HomeContent() {
   const [isPremiumUser, setIsPremiumUser] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
+    console.log("CLIENT_LOG: HomeContent mounted, hydration complete")
+  }, [])
+
+  useEffect(() => {
+    if (!isMounted) return
     window.onerror = (msg, url, line, col, error) => {
       console.error("GLOBAL_ERROR_DETECTED:", { msg, url, line, col, error })
     }
     window.onunhandledrejection = (event) => {
       console.error("UNHANDLED_REJECTION_DETECTED:", event.reason)
     }
-  }, [])
+  }, [isMounted])
+
+  if (!isMounted) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-dvh bg-background text-foreground/50 text-xs gap-4">
+        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        자바스크립트 로드 중...
+      </div>
+    )
+  }
 
   useEffect(() => {
     console.log("STATE_CHANGE: isAnalyzing =", isAnalyzing)
@@ -113,7 +128,9 @@ function HomeContent() {
 
   return (
     <div className="flex flex-col min-h-dvh bg-background max-w-lg mx-auto">
-      <PremiumManager setIsPremiumUser={setIsPremiumUser} />
+      <Suspense fallback={null}>
+        <PremiumManager setIsPremiumUser={setIsPremiumUser} />
+      </Suspense>
       <Header />
       <main className="flex-1 pb-36">
         <HeroSection />
@@ -126,7 +143,7 @@ function HomeContent() {
           </div>
         )}
 
-        {!parsedData && !isAnalyzing && (
+        {!parsedData && (
           <UploadArea
             onAnalysisStart={() => {
               setIsAnalyzing(true)

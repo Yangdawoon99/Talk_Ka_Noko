@@ -52,25 +52,24 @@ export function UploadArea({ onAnalysisStart, onAnalysisComplete }: UploadAreaPr
     onAnalysisStart()
 
     try {
-      console.log("CLIENT_LOG: Sending FormData to /api/parse")
+      console.log("CLIENT_LOG: Sending text parse request to /api/parse", { fileName: file.name, fileSize: file.size })
       const formData = new FormData()
       formData.append("file", file)
-      formData.append("analyze", "true")
 
       const response = await fetch("/api/parse", {
         method: "POST",
         body: formData,
       })
 
-      console.log(`CLIENT_LOG: Response status: ${response.status}`)
-      if (!response.ok) throw new Error("Upload failed")
+      console.log(`CLIENT_LOG: Parse response status: ${response.status}`)
+      if (!response.ok) throw new Error("Parse failed")
 
       const result = await response.json()
       console.log(`CLIENT_LOG: Received parsed data (${result.data?.length} items)`)
       onAnalysisComplete(result.data, result.analysis, result.aiError)
     } catch (error) {
-      console.error("Analysis Error:", error)
-      alert("분석 중 오류가 발생했습니다.")
+      console.error("Parse Error 상세:", error)
+      alert("파일 분석 중 오류가 발생했습니다.")
       onAnalysisComplete(null, null, (error as any).message || "분석 실패")
     } finally {
       console.log("CLIENT_LOG: handleAnalyze finished")
