@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense, useMemo } from "react"
 import { Header } from "@/components/header"
 import { HeroSection } from "@/components/hero-section"
 import { ZipperVisual } from "@/components/zipper-visual"
@@ -128,9 +128,7 @@ function HomeContent() {
 
   return (
     <div className="flex flex-col min-h-dvh bg-background max-w-lg mx-auto">
-      <Suspense fallback={null}>
-        <PremiumManager setIsPremiumUser={setIsPremiumUser} />
-      </Suspense>
+      <PremiumManager setIsPremiumUser={setIsPremiumUser} />
       <Header />
       <main className="flex-1 pb-36">
         <HeroSection />
