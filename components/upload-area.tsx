@@ -136,7 +136,8 @@ export function UploadArea({ onAnalysisStart, onAnalysisComplete }: UploadAreaPr
           <button
             onClick={handleAnalyze}
             disabled={isUploading}
-            className="w-full py-4 px-6 rounded-2xl bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100"
+            style={{ backgroundColor: "#FEE500", color: "#191919" }}
+            className="w-full py-4 px-6 rounded-2xl font-bold shadow-lg shadow-yellow-500/10 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100"
           >
             {isUploading ? "분석 중..." : "지금 바로 분석하기"}
           </button>
