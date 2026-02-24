@@ -65,6 +65,14 @@ function HomeContent() {
     }
   }, [isMounted])
 
+  useEffect(() => {
+    console.log("STATE_CHANGE: isAnalyzing =", isAnalyzing)
+  }, [isAnalyzing])
+
+  useEffect(() => {
+    console.log("STATE_CHANGE: parsedData =", parsedData?.length, "items")
+  }, [parsedData])
+
   if (!isMounted) {
     return (
       <div className="flex flex-col items-center justify-center min-h-dvh bg-background text-foreground/50 text-xs gap-4">
@@ -73,14 +81,6 @@ function HomeContent() {
       </div>
     )
   }
-
-  useEffect(() => {
-    console.log("STATE_CHANGE: isAnalyzing =", isAnalyzing)
-  }, [isAnalyzing])
-
-  useEffect(() => {
-    console.log("STATE_CHANGE: parsedData =", parsedData?.length, "items")
-  }, [parsedData])
 
 
   const handleAnalysisTrigger = async (context: any) => {
