@@ -9,14 +9,14 @@ import { StickyFooter } from "@/components/sticky-footer"
 import { ReportCard } from "@/components/report-card"
 
 import { ScoreCriteriaModal } from "@/components/score-criteria-modal"
-import { Info, Sparkles } from "lucide-react"
+import { Info, Sparkles, Lock } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 
 import { ContextSurvey } from "@/components/context-survey"
 import { ActivityHeatmap } from "@/components/activity-heatmap"
-import { RelationshipRadar } from "@/components/relationship-radar"
-import { AttachmentCard } from "@/components/attachment-card"
 import { PaymentModal } from "@/components/payment-modal"
+import { PremiumDetailedReport } from "@/components/premium-detailed-report"
+import { ShareButton, SharedCaptureCard } from "@/components/share-button"
 import { toast, Toaster } from "sonner"
 
 
@@ -246,86 +246,64 @@ function HomeContent() {
                 isPremium={!isPremiumUser}
               />
 
-              {isPremiumUser ? (
-                <div className="flex flex-col gap-6 animate-in zoom-in duration-500">
-                  {/* Premium: Attachment Type */}
-                  <AttachmentCard type={analysis.attachment_type} />
-
-                  {/* Premium: Radar Chart */}
-                  {analysis.radar_data && (
-                    <RelationshipRadar data={analysis.radar_data} />
-                  )}
-
-                  {/* Premium: Sentiment Score */}
-                  <div className="p-6 rounded-2xl bg-secondary/30 border border-primary/20 flex flex-col gap-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-muted-foreground uppercase">대화 온도 (Sentiment)</h4>
-                      <span className="text-xl font-black text-primary">{analysis.sentiment_score || 0}%</span>
+              {!isPremiumUser && (
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 px-2">
+                      <Lock className="w-4 h-4 text-primary" />
+                      <h3 className="text-sm font-bold text-foreground font-title">프리미엄 정밀 분석</h3>
                     </div>
-                    <div className="h-3 w-full bg-border/30 rounded-full overflow-hidden shadow-inner">
-                      <div
-                        className="h-full bg-gradient-to-r from-primary/50 to-primary transition-all duration-1000 shadow-[0_0_15px_rgba(254,229,0,0.5)]"
-                        style={{ width: `${analysis.sentiment_score || 0}%` }}
-                      />
-                    </div>
-                    <p className="text-[10px] text-center text-muted-foreground">
-                      * 대화 속의 긍정/부정 단어와 이모티콘의 온도를 측정한 결과입니다.
-                    </p>
-                  </div>
+                    <div className="relative overflow-hidden rounded-2xl bg-secondary/30 border border-primary/20 p-6 flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                          상대방의 속마음
+                        </h4>
+                        <span className="text-[10px] font-bold text-primary px-2 py-0.5 rounded-full bg-primary/10">LOCKED</span>
+                      </div>
 
-                  {/* Premium: Deep Analysis Text */}
-                  <div className="p-6 rounded-2xl bg-primary/5 border border-primary/20 flex flex-col gap-4">
-                    <div className="flex items-center gap-2 text-primary">
-                      <Sparkles className="w-4 h-4" />
-                      <h4 className="text-sm font-bold">전문 상담가 심층 리포트</h4>
-                    </div>
-                    <div className="space-y-3">
-                      <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
-                        {analysis.detailed_analysis || "관계에 대한 정밀 분석 결과가 여기에 표시됩니다."}
+                      <div className="flex flex-col gap-2 blur-sm select-none opacity-40">
+                        <div className="flex items-center gap-2">
+                          <div className="w-full h-2 shadow-inner bg-border/50 rounded-full overflow-hidden">
+                            <div className="h-full bg-primary w-[70%]" />
+                          </div>
+                          <span className="text-[10px] font-medium min-w-[30px]">72%</span>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground italic leading-relaxed">
+                        AI가 분석한 심리학적 인사이트와 MZ 애착 유형,<br />
+                        그리고 두 사람의 핵심 대화 키워드를 확인해보세요.
                       </p>
+
+                      <button
+                        onClick={(e) => {
+                          console.log("CLICKED: Payment button clicked")
+                          setIsPaymentModalOpen(true)
+                        }}
+                        type="button"
+                        className="w-full py-4 px-6 rounded-xl bg-[#FEE500] text-[#3A1D1D] font-extrabold shadow-lg shadow-yellow-500/10 hover:scale-[1.01] active:scale-[0.99] transition-all text-sm flex items-center justify-center gap-2"
+                      >
+                        <Sparkles className="w-4 h-4 fill-[#3A1D1D]" />
+                        상세 리포트 잠금 해제하기
+                      </button>
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className="relative overflow-hidden rounded-2xl bg-secondary/30 border border-primary/20 p-6 flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                      프리미엄 정밀 분석
-                    </h4>
-                    <span className="text-[10px] font-bold text-primary px-2 py-0.5 rounded-full bg-primary/10">LOCKED</span>
+              )}
+
+              {/* 2. Premium Detailed Analysis (Unlocked) */}
+              {isPremiumUser && (
+                <div className="mt-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                  <PremiumDetailedReport analysis={analysis} />
+                  <div className="pt-8 border-t border-border/40">
+                    <ShareButton analysis={analysis} />
                   </div>
 
-                  <div className="flex flex-col gap-2 blur-sm select-none opacity-40">
-                    <div className="flex items-center gap-2">
-                      <div className="w-full h-2 shadow-inner bg-border/50 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary w-[70%]" />
-                      </div>
-                      <span className="text-[10px] font-medium min-w-[30px]">72%</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-full h-2 shadow-inner bg-border/50 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary/50 w-[45%]" />
-                      </div>
-                      <span className="text-[10px] font-medium min-w-[30px]">45%</span>
-                    </div>
+                  {/* Capture Area (Hidden) */}
+                  <div style={{ position: 'absolute', left: '-9999px', top: '0' }}>
+                    <SharedCaptureCard analysis={analysis} />
                   </div>
-
-                  <p className="text-xs text-muted-foreground italic leading-relaxed">
-                    상대방의 답장에 담긴 무의식적 단어들과 시간대별 감정 변화를 분석한 단독 리포트를 확인하세요.
-                  </p>
-
-                  <button
-                    onClick={(e) => {
-                      console.log("CLICKED: Payment button clicked")
-                      setIsPaymentModalOpen(true)
-                    }}
-                    type="button"
-                    className="w-full py-4 px-6 rounded-xl bg-[#FEE500] text-[#3A1D1D] font-extrabold shadow-lg shadow-yellow-500/10 hover:scale-[1.01] active:scale-[0.99] transition-all text-sm flex items-center justify-center gap-2"
-                  >
-                    <Sparkles className="w-4 h-4 fill-[#3A1D1D]" />
-                    상세 리포트 잠금 해제하기
-                  </button>
                 </div>
               )}
             </div>

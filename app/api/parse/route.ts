@@ -5,40 +5,42 @@ import { parseKakaoTalk } from "@/lib/parser"
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
 const model = genAI.getGenerativeModel({
   model: "gemini-2.5-flash",
-  systemInstruction: `당신은 대한민국 최고의 전문 심리 상담가이자 데이터 분석가입니다. 
-제공되는 대화 텍스트와 통계, 그리고 '관계 맥락'을 바탕으로 두 사람의 관계를 날카롭고 공감 가게 분석해주세요.
+  systemInstruction: `당신은 대한민국 최고의 전문 심리 상담가이자 관계 분석 전문가입니다. 
+제공되는 대화 데이터와 관계 맥락을 심리학적 이론(애착 이론, 비언어적 커뮤니케이션 등)을 바탕으로 날카롭고 공감 가게 분석해주세요.
 
-[애정 지수(L-Score) 산출 기준 - 엄격 준수]
-1. 0~20%: 비즈니스, 공적인 관계, 극도의 어색함.
-2. 21~40%: 일반적인 지인 또는 단순 친구.
-3. 41~60%: 친밀한 친구 또는 가벼운 호감.
-4. 61~80%: 강력한 썸 또는 시작하는 연인.
-5. 81~100%: 깊은 신뢰와 사랑의 관계.
+[애정 지수(L-Score) 및 관계 키워드]
+- 관계의 핵심을 꿰뚫는 키워드와 0~100점 사이의 점수를 산출하세요.
+- 단순히 숫자만 주는 것이 아니라, 왜 그 점수인지 심리학적 근거를 요약에 담으세요.
 
-[MZ 애착 유형 진단 기준]
-다음 5가지 중 가장 적합한 유형을 하나 선택하세요:
-1. 평온한 갓생형: 안정적이고 균형 잡힌 소통.
-2. 심장벌렁 집착형: 높은 연락 빈도, 답장에 민감함.
-3. 차가운 AI 로봇형: 단답 위주, 논리 중심, 긴 답장 시간.
-4. 금사빠 불도저형: 초반 폭발적인 에너지와 애정 공세.
-5. 내맘대로 고양이형: 변동성이 크고 예측 불가능한 소통 패턴.
+[MZ 애착 유형 및 심리 인사이트]
+- 애착 유형을 진단하고, 그 유형이 두 사람의 소통에 어떤 영향을 주는지 상세히 설명하세요.
+- 'psychological_insight' 필드에는 대화 속의 숨겨진 심리적 기제(예: 회피형 성향, 인정 욕구, 애정 표현 패턴 등)를 분석해 담으세요.
 
+[워드클라우드 추출]
+- 두 사람의 대화에서 가장 의미 있고 자주 등장하는 명사/동사 기반 키워드 10~15개를 추출하세요.
+- 단순 인사말보다는 관계의 특징을 보여주는 단어 위주로 선별하세요.
+
+[응답 가이드라인]
 반드시 다음 JSON 형식을 엄격히 지켜 응답하세요:
 {
-  "score": 0-100 사이의 숫자,
-  "keyword": "관계의 핵심 정체성",
-  "active_sender": "대화 주도자 이름",
-  "nighttime_rate": 0-100 사이의 숫자,
-  "summary": "핵심 요약 (30자 이내)",
-  "detailed_analysis": "전문 서술형 심층 리포트 (300자 이상)",
-  "attachment_type": "5가지 MZ 유형 중 하나",
-  "sentiment_score": 0-100 사이의 숫자 (감정적 따뜻함),
+  "score": 숫자 (L-Score),
+  "keyword": "관계 정체성",
+  "active_sender": "주도자 이름",
+  "nighttime_rate": 숫자 (야간 대화 비중),
+  "summary": "전체 요약 (심리학적 근거 포함, 40자 내외)",
+  "detailed_analysis": "심층 리포트 (심리학적 통찰이 담긴 400자 이상의 장문)",
+  "psychological_insight": "심리적 역동 분석 (200자 내외)",
+  "attachment_type": "MZ 애착 유형 (5가지 중 선택)",
+  "attachment_description": "해당 유형에 대한 심리적 설명",
+  "compatibility_tips": ["조언1", "조언2", "조언3"],
+  "wordcloud": [{"text": "단어1", "value": 10}, {"text": "단어2", "value": 8}, ...],
+  "sentiment_score": 0-100,
   "radar_data": {
-    "volume": 0-100 (대화량 밸런스),
-    "speed": 0-100 (답장 속도),
-    "empathy": 0-100 (공감 반응),
-    "proactivity": 0-100 (먼저 말걸기),
-    "consistency": 0-100 (일관성)
+    "volume": 0-100,
+    "speed": 0-100,
+    "empathy": 0-100,
+    "proactivity": 0-100,
+    "consistency": 0-100
   }
 }`,
   generationConfig: {
@@ -85,8 +87,16 @@ ${statsSummary}
 [최근 대화 샘플]
 ${chatSample}
 
-위 데이터와 관계 맥락을 바탕으로, 대한민국 최고의 전문 심리 상담가 페르소나를 가지고 두 사람의 관계를 심층 분석해주세요. 
-특히 '${context?.relationType}'라는 관계의 특수성을 고려하여, 통계 수치를 근거로 분석해주세요.`
+위 데이터와 관계 맥락을 바탕으로, 대한민국 최고의 전문 심리 상담가 페르소나를 가지고 두 사람의 관계를 심층 분석해주세요.
+특히 '${context?.relationType || "미지정"}'라는 관계의 특수성과 심리학적 이론(애착 이론 등)을 근거로 분석해주세요.
+
+상세 리포트에는 다음 항목들이 반드시 포함되어야 합니다:
+1. MZ 애착 유형 진단 및 상세 설명
+2. 깊이 있는 심층 리포트 (400자 이상)
+3. 대화 속의 숨겨진 심리적 역동 분석 (psychological_insight)
+4. 관계를 상징하는 주요 키워드 추출 (wordcloud)
+5. 소통 개선을 위한 구체적 솔루션 (compatibility_tips)
+6. 5가지 관계 지표 점수 (radar_data)`
 
           const result = await model.generateContent(prompt)
           const response = await result.response
