@@ -104,65 +104,92 @@ export function ShareButton({ analysis }: ShareButtonProps) {
 export function SharedCaptureCard({ analysis }: { analysis: any }) {
     if (!analysis) return null
 
+    // Explicit colors for html2canvas compatibility (Hex/RGB only)
+    const colors = {
+        primary: "#FEE500",
+        background: "#0a0a0a",
+        secondary: "#2a2a2a",
+        indigo500: "#6366f1",
+        indigo400: "#818cf8",
+        muted: "#888888",
+        white: "#ffffff"
+    }
+
     return (
         <div
             id="report-capture-area"
-            className="w-[400px] bg-[#0a0a0a] p-8 border-2 border-[#FEE500]/30 relative overflow-hidden flex flex-col items-center gap-6"
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            className="w-[400px] p-8 relative overflow-hidden flex flex-col items-center gap-6"
+            style={{
+                fontFamily: 'Inter, sans-serif',
+                backgroundColor: colors.background,
+                border: `2px solid rgba(254, 229, 0, 0.3)`
+            }}
         >
             {/* Background elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl" />
+            <div
+                className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl"
+                style={{ backgroundColor: 'rgba(254, 229, 0, 0.1)' }}
+            />
+            <div
+                className="absolute bottom-0 left-0 w-32 h-32 rounded-full blur-3xl"
+                style={{ backgroundColor: 'rgba(99, 102, 241, 0.1)' }}
+            />
 
             {/* Header */}
             <div className="flex flex-col items-center gap-1 z-10">
                 <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#FEE500] animate-pulse" />
-                    <span className="text-[10px] font-black text-[#FEE500] tracking-widest uppercase italic">Talk-Ka-Noko Analysis</span>
+                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: colors.primary }} />
+                    <span className="text-[10px] font-black tracking-widest uppercase italic" style={{ color: colors.primary }}>Talk-Ka-Noko Analysis</span>
                 </div>
-                <h1 className="text-xl font-black text-white italic">우리의 대화 리포트</h1>
+                <h1 className="text-xl font-black italic" style={{ color: colors.white }}>우리의 대화 리포트</h1>
             </div>
 
             {/* Main Score Area */}
             <div className="relative flex items-center justify-center py-4 z-10">
-                <div className="absolute inset-0 bg-primary/5 rounded-full blur-2xl scale-150" />
+                <div className="absolute inset-0 rounded-full blur-2xl scale-150" style={{ backgroundColor: 'rgba(254, 229, 0, 0.05)' }} />
                 <div className="flex flex-col items-center gap-0">
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-50">L-SCORE</span>
-                    <span className="text-7xl font-black text-[#FEE500] tracking-tighter drop-shadow-[0_0_15px_rgba(254,229,0,0.3)]">
+                    <span className="text-[10px] font-bold uppercase opacity-50" style={{ color: colors.muted }}>L-SCORE</span>
+                    <span className="text-7xl font-black tracking-tighter drop-shadow-[0_0_15px_rgba(254,229,0,0.3)]" style={{ color: colors.primary }}>
                         {analysis.score}%
                     </span>
                 </div>
             </div>
 
             {/* Keyword Card */}
-            <div className="w-full p-5 rounded-2xl bg-secondary/40 border border-white/5 backdrop-blur-sm z-10 flex flex-col items-center gap-2">
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
-                    <Sparkles className="w-3 h-3 text-primary" />
-                    <span className="text-[10px] font-bold text-primary italic uppercase">Keyword</span>
+            <div
+                className="w-full p-5 rounded-2xl border backdrop-blur-sm z-10 flex flex-col items-center gap-2"
+                style={{
+                    backgroundColor: 'rgba(42, 42, 42, 0.4)',
+                    borderColor: 'rgba(255, 255, 255, 0.05)'
+                }}
+            >
+                <div className="flex items-center gap-2 px-3 py-1 rounded-full" style={{ backgroundColor: 'rgba(254, 229, 0, 0.1)', border: '1px solid rgba(254, 229, 0, 0.2)' }}>
+                    <Sparkles className="w-3 h-3" style={{ color: colors.primary }} />
+                    <span className="text-[10px] font-bold italic uppercase" style={{ color: colors.primary }}>Keyword</span>
                 </div>
-                <h2 className="text-2xl font-black text-white text-center tracking-tight">"{analysis.keyword}"</h2>
-                <p className="text-xs text-muted-foreground text-center line-clamp-2 px-2">
+                <h2 className="text-2xl font-black text-center tracking-tight" style={{ color: colors.white }}>"{analysis.keyword}"</h2>
+                <p className="text-xs text-center line-clamp-2 px-2" style={{ color: colors.muted }}>
                     {analysis.summary}
                 </p>
             </div>
 
             {/* Attachment Type Badge */}
             <div className="flex flex-col items-center gap-2 z-10">
-                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Type</span>
-                <div className="px-4 py-2 rounded-xl bg-indigo-500/20 border border-indigo-500/30">
-                    <span className="text-xl font-black text-indigo-400 italic">#{analysis.attachment_type}</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>Type</span>
+                <div className="px-4 py-2 rounded-xl" style={{ backgroundColor: 'rgba(99, 102, 241, 0.2)', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+                    <span className="text-xl font-black italic" style={{ color: colors.indigo400 }}>#{analysis.attachment_type}</span>
                 </div>
             </div>
 
             {/* Footer / QR or Brand */}
             <div className="mt-4 flex flex-col items-center gap-1 opacity-60 z-10">
-                <span className="text-[9px] font-medium text-muted-foreground uppercase">talk-ka-noko.vercel.app</span>
-                <span className="text-[8px] text-muted-foreground/50 italic">AI-Powered Relationship Analytics</span>
+                <span className="text-[9px] font-medium uppercase" style={{ color: colors.muted }}>talk-ka-noko.vercel.app</span>
+                <span className="text-[8px] italic" style={{ color: 'rgba(136, 136, 136, 0.5)' }}>AI-Powered Relationship Analytics</span>
             </div>
 
-            {/* Watermark */}
+            {/* Watermark/Pattern - simplified for canvas */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-45deg] pointer-events-none">
-                <span className="text-[100px] font-black text-white/[0.02] whitespace-nowrap">TALK KA NOKO</span>
+                <span className="text-[100px] font-black whitespace-nowrap" style={{ color: 'rgba(255, 255, 255, 0.02)' }}>TALK KA NOKO</span>
             </div>
         </div>
     )
