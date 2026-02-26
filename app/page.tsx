@@ -384,11 +384,6 @@ function HomeContent() {
                       새로운 대화 분석하기
                     </button>
                   </div>
-
-                  {/* Capture Area (Hidden) */}
-                  <div style={{ position: 'absolute', left: '-9999px', top: '0' }}>
-                    <SharedCaptureCard analysis={analysis} />
-                  </div>
                 </div>
               )}
 
@@ -403,6 +398,11 @@ function HomeContent() {
                   </button>
                 </div>
               )}
+
+              {/* Capture Area (Hidden for everyone, used for sharing) */}
+              <div style={{ position: 'absolute', left: '-9999px', top: '0' }}>
+                <SharedCaptureCard analysis={analysis} />
+              </div>
             </div>
           </div>
         ) : null}
