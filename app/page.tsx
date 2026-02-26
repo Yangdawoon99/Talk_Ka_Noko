@@ -401,7 +401,7 @@ function HomeContent() {
 
               {/* Capture Area (Hidden for everyone, used for sharing) */}
               <div style={{ position: 'absolute', left: '-9999px', top: '0' }}>
-                <SharedCaptureCard analysis={analysis} />
+                <SharedCaptureCard analysis={analysis} isPremium={isPremiumUser} />
               </div>
             </div>
           </div>
