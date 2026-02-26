@@ -396,6 +396,44 @@ function HomeContent() {
 
         <Toaster theme="dark" position="top-center" richColors />
       </main>
+
+      <footer className="w-full py-12 px-6 border-t border-border/40 bg-secondary/10">
+        <div className="max-w-[480px] mx-auto space-y-8">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-lg font-black tracking-tighter text-foreground/80 italic">톡까놓고.</h2>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              우리의 대화 속 숨겨진 마음을 AI가 정교하게 분석합니다.<br />
+              모든 대화 데이터는 분석 즉시 파기되며 서버에 저장되지 않습니다.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <h4 className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Customer Service</h4>
+              <a href="mailto:support@talkkanoko.com" className="text-xs text-muted-foreground hover:text-primary transition-colors block border-b border-border w-fit pb-0.5">
+                support@talkkanoko.com
+              </a>
+            </div>
+            <div className="space-y-3">
+              <h4 className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Information</h4>
+              <p className="text-[10px] text-muted-foreground leading-tight">
+                본 서비스는 카카오(Kakao)와 무관한 독립적인 분석 서비스입니다.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-8 flex flex-col gap-4 border-t border-border/40">
+            <div className="flex gap-4">
+              <span className="text-[10px] text-muted-foreground hover:text-foreground cursor-pointer transition-colors">이용약관</span>
+              <span className="text-[10px] text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-bold text-primary">개인정보처리방침</span>
+            </div>
+            <p className="text-[9px] text-muted-foreground/50">
+              © 2026 Talk-Ka-Noko. All rights reserved. Professional AI relationship analysis platform.
+            </p>
+          </div>
+        </div>
+      </footer>
+
       <StickyFooter />
     </div>
   )

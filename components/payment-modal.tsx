@@ -103,17 +103,25 @@ export function PaymentModal({ isOpen, onOpenChange, onSuccess }: PaymentModalPr
                                 onClick={handleNextStep}
                                 className="h-14 bg-primary text-primary-foreground font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all rounded-2xl shadow-xl shadow-primary/10"
                             >
-                                9,900원 결제하고 확인하기
+                                9,900원 ($7.50) 결제하기
                             </Button>
+
+                            <p className="text-[10px] text-center text-muted-foreground/60 px-4 leading-relaxed">
+                                디지털 콘텐츠 특성상 분석이 진행된 후에는 환불이 불가합니다.<br />
+                                결제 시 이에 동의하는 것으로 간주됩니다.
+                            </p>
                         </div>
                     ) : (
                         <div className="flex flex-col gap-6 mt-8 animate-in fade-in slide-in-from-left-4 duration-300">
                             <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] text-muted-foreground uppercase">Order Summary</span>
-                                    <span className="text-sm font-bold">프리미엄 정밀 분석 리포트</span>
+                                    <span className="text-[10px] text-muted-foreground uppercase leading-tight">Order Summary</span>
+                                    <span className="text-sm font-bold text-white">프리미엄 정밀 분석 리포트</span>
                                 </div>
-                                <span className="text-lg font-black text-primary">$7.50</span>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-lg font-black text-primary">$7.50</span>
+                                    <span className="text-[9px] text-muted-foreground">약 9,900원</span>
+                                </div>
                             </div>
 
                             <div className="min-h-[150px]">
