@@ -199,33 +199,51 @@ export function ShareButton({ analysis, onShareSuccess }: ShareButtonProps) {
 export function SharedCaptureCard({ analysis, isPremium = false }: { analysis: any, isPremium?: boolean }) {
     if (!analysis) return null
 
-    // Explicit colors for html2canvas compatibility (Hex/RGB only)
+    // Strictly using HEX/RGB for html2canvas compatibility
     const colors = {
-        primary: isPremium ? "#FEE500" : "#FEE500", // Keep primary gold, but use it differently
+        primary: "#FEE500",
         background: isPremium ? "#050505" : "#0a0a0a",
-        premiumAccent: "#EAB308", // Golden
-        freeAccent: "#6366f1", // Indigo
+        premiumAccent: "#EAB308",
+        freeAccent: "#6366f1",
         muted: "#888888",
-        white: "#ffffff"
+        white: "#ffffff",
+        border: isPremium ? "rgba(234, 179, 8, 0.4)" : "rgba(254, 229, 0, 0.2)",
+        cardBg: isPremium ? "rgba(255, 255, 255, 0.03)" : "rgba(42, 42, 42, 0.4)",
+        cardBorder: isPremium ? "rgba(234, 179, 8, 0.2)" : "rgba(255, 255, 255, 0.05)",
+        indigoBg: "rgba(99, 102, 241, 0.1)",
+        indigoBorder: "rgba(99, 102, 241, 0.3)"
     }
 
     return (
         <div
             id="report-capture-area"
-            className="w-[400px] p-10 relative overflow-hidden flex flex-col items-center gap-8"
             style={{
-                fontFamily: 'Inter, sans-serif',
+                width: '400px',
+                padding: '40px',
+                position: 'relative',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '32px',
+                fontFamily: 'Inter, system-ui, sans-serif',
                 backgroundColor: colors.background,
-                border: isPremium
-                    ? `3px solid rgba(234, 179, 8, 0.4)`
-                    : `2px solid rgba(254, 229, 0, 0.2)`
+                border: isPremium ? `3px solid ${colors.premiumAccent}` : `2px solid ${colors.primary}`,
+                borderRadius: '0px' // Canvas doesn't care about container radius usually, but let's be safe
             }}
         >
             {/* Premium Glossy Effect */}
             {isPremium && (
                 <div
-                    className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] rotate-45 pointer-events-none opacity-10"
                     style={{
+                        position: 'absolute',
+                        top: '-50%',
+                        left: '-50%',
+                        width: '200%',
+                        height: '200%',
+                        transform: 'rotate(45deg)',
+                        pointerEvents: 'none',
+                        opacity: 0.1,
                         background: 'linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 50%)'
                     }}
                 />
@@ -233,39 +251,61 @@ export function SharedCaptureCard({ analysis, isPremium = false }: { analysis: a
 
             {/* Background elements */}
             <div
-                className="absolute top-0 right-0 w-48 h-48 rounded-full blur-[80px]"
-                style={{ backgroundColor: isPremium ? 'rgba(234, 179, 8, 0.15)' : 'rgba(254, 229, 0, 0.1)' }}
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    width: '192px',
+                    height: '192px',
+                    borderRadius: '9999px',
+                    filter: 'blur(80px)',
+                    backgroundColor: isPremium ? 'rgba(234, 179, 8, 0.15)' : 'rgba(254, 229, 0, 0.1)',
+                    zIndex: 0
+                }}
             />
             <div
-                className="absolute bottom-0 left-0 w-48 h-48 rounded-full blur-[80px]"
-                style={{ backgroundColor: isPremium ? 'rgba(234, 179, 8, 0.1)' : 'rgba(99, 102, 241, 0.1)' }}
+                style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    width: '192px',
+                    height: '192px',
+                    borderRadius: '9999px',
+                    filter: 'blur(80px)',
+                    backgroundColor: isPremium ? 'rgba(234, 179, 8, 0.1)' : 'rgba(99, 102, 241, 0.1)',
+                    zIndex: 0
+                }}
             />
 
             {/* Header / Brand */}
-            <div className="flex flex-col items-center gap-2 z-10 w-full">
-                <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isPremium ? colors.premiumAccent : colors.primary }} />
-                        <span className="text-[10px] font-black tracking-[0.2em] uppercase italic" style={{ color: isPremium ? colors.premiumAccent : colors.white }}>Talk-Ka-Noko</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', zIndex: 10, width: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: isPremium ? colors.premiumAccent : colors.primary }} />
+                        <span style={{ fontSize: '10px', fontWeight: 900, letterSpacing: '0.2em', textTransform: 'uppercase', fontStyle: 'italic', color: isPremium ? colors.premiumAccent : colors.white }}>Talk-Ka-Noko</span>
                     </div>
                     {isPremium ? (
-                        <div className="px-2 py-0.5 rounded-md bg-yellow-500/20 border border-yellow-500/30 text-[8px] font-black text-yellow-500 uppercase tracking-tighter">
+                        <div style={{ padding: '2px 8px', borderRadius: '4px', backgroundColor: 'rgba(234, 179, 8, 0.2)', border: '1px solid rgba(234, 179, 8, 0.3)', fontSize: '8px', fontWeight: 900, color: '#EAB308', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
                             PREMIUM ANALYTICS
                         </div>
                     ) : (
-                        <span className="text-[8px] font-bold text-muted-foreground opacity-50 italic">AI-POWERED</span>
+                        <span style={{ fontSize: '8px', fontWeight: 'bold', color: colors.muted, opacity: 0.5, fontStyle: 'italic' }}>AI-POWERED</span>
                     )}
                 </div>
-                <div className="h-px w-full bg-white/5 mt-1" />
+                <div style={{ height: '1px', width: '100%', backgroundColor: 'rgba(255,255,255,0.05)', marginTop: '4px' }} />
             </div>
 
             {/* Main Result Area */}
-            <div className="flex flex-col items-center gap-6 z-10 w-full animate-in fade-in duration-1000">
-                <div className="flex flex-col items-center gap-0">
-                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1" style={{ color: colors.muted }}>L-SCORE REPORT</span>
-                    <div className="relative">
-                        <span className="text-8xl font-black tracking-tighter" style={{
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', zIndex: 10, width: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+                    <span style={{ fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.4, marginBottom: '4px', color: colors.muted }}>L-SCORE REPORT</span>
+                    <div style={{ position: 'relative' }}>
+                        <span style={{
+                            fontSize: '80px',
+                            fontWeight: 900,
+                            letterSpacing: '-0.05em',
                             color: isPremium ? colors.premiumAccent : colors.primary,
+                            // Text shadow is supported by most browsers in canvas
                             textShadow: isPremium ? '0 0 40px rgba(234, 179, 8, 0.3)' : '0 0 30px rgba(254, 229, 0, 0.2)'
                         }}>
                             {analysis.score}%
@@ -274,53 +314,58 @@ export function SharedCaptureCard({ analysis, isPremium = false }: { analysis: a
                 </div>
 
                 <div
-                    className="w-full p-6 rounded-[28px] border backdrop-blur-md flex flex-col items-center gap-3"
                     style={{
-                        backgroundColor: isPremium ? 'rgba(255, 255, 255, 0.03)' : 'rgba(42, 42, 42, 0.4)',
-                        borderColor: isPremium ? 'rgba(234, 179, 8, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                        boxShadow: isPremium ? '0 20px 40px rgba(0,0,0,0.4)' : 'none'
+                        width: '100%',
+                        padding: '24px',
+                        borderRadius: '28px',
+                        border: `1px solid ${colors.cardBorder}`,
+                        backgroundColor: colors.cardBg,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '12px'
                     }}
                 >
-                    <div className="px-3 py-1 rounded-full flex items-center gap-1.5" style={{ backgroundColor: 'rgba(254, 229, 0, 0.1)', border: '1px solid rgba(254, 229, 0, 0.15)' }}>
-                        <Sparkles className="w-3 h-3" style={{ color: colors.primary }} />
-                        <span className="text-[9px] font-black italic uppercase tracking-wider" style={{ color: colors.primary }}>AI RELATIONSHIP KEYWORD</span>
+                    <div style={{ padding: '4px 12px', borderRadius: '9999px', display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(254, 229, 0, 0.1)', border: '1px solid rgba(254, 229, 0, 0.15)' }}>
+                        <Sparkles style={{ width: '12px', height: '12px', fill: colors.primary, color: colors.primary }} />
+                        <span style={{ fontSize: '9px', fontWeight: 900, fontStyle: 'italic', textTransform: 'uppercase', letterSpacing: '0.05em', color: colors.primary }}>AI RELATIONSHIP KEYWORD</span>
                     </div>
-                    <h2 className="text-2xl font-black text-center tracking-tight leading-tight" style={{ color: colors.white }}>
+                    <h2 style={{ fontSize: '24px', fontWeight: 900, textAlign: 'center', letterSpacing: '-0.02em', lineHeight: '1.2', color: colors.white }}>
                         "{analysis.keyword}"
                     </h2>
-                    <p className="text-[11px] text-center px-4 leading-relaxed line-clamp-3" style={{ color: colors.muted }}>
+                    <p style={{ fontSize: '11px', textAlign: 'center', padding: '0 16px', lineHeight: '1.6', color: colors.muted, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {analysis.summary}
                     </p>
                 </div>
             </div>
 
             {/* Attachment Type - DIFFERENTIATED */}
-            <div className="flex flex-col items-center gap-4 z-10 w-full mt-2">
-                <div className="flex flex-col items-center gap-2">
-                    <span className="text-[9px] font-bold uppercase tracking-[0.3em]" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>Attachment Style</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', zIndex: 10, width: '100%', marginTop: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.3em', color: 'rgba(255, 255, 255, 0.3)' }}>Attachment Style</span>
                     {isPremium ? (
-                        <div className="px-6 py-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-                            <span className="text-x font-black flex flex-col items-center leading-none">
-                                <span className="text-[9px] opacity-60 mb-1">고유형 페르소나</span>
-                                <span className="text-2xl italic tracking-tighter" style={{ color: "#a5b4fc" }}>#{analysis.attachment_type}</span>
-                            </span>
+                        <div style={{ padding: '12px 24px', borderRadius: '16px', backgroundColor: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.3)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#6366f1' }} />
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1 }}>
+                                <span style={{ fontSize: '9px', opacity: 0.6, marginBottom: '4px', color: colors.white }}>고유형 페르소나</span>
+                                <span style={{ fontSize: '24px', fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.05em', color: '#a5b4fc' }}>#{analysis.attachment_type}</span>
+                            </div>
                         </div>
                     ) : (
-                        <div className="relative group">
-                            <div className="px-6 py-3 rounded-2xl bg-white/5 border border-dashed border-white/20 blur-[4px] select-none opacity-40">
-                                <span className="text-xl font-black italic px-4">#비공개_애착유형</span>
+                        <div style={{ position: 'relative' }}>
+                            <div style={{ padding: '12px 24px', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', filter: 'blur(4px)', opacity: 0.4 }}>
+                                <span style={{ fontSize: '20px', fontWeight: 900, fontStyle: 'italic', padding: '0 16px', color: colors.white }}>#비공개_애착유형</span>
                             </div>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="px-3 py-1 rounded-full bg-primary text-[#3A1D1D] text-[9px] font-black shadow-lg">프리미엄 전용 데이터</span>
+                            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <span style={{ padding: '4px 12px', borderRadius: '9999px', backgroundColor: colors.primary, color: '#3A1D1D', fontSize: '9px', fontWeight: 900, boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>프리미엄 전용 데이터</span>
                             </div>
                         </div>
                     )}
                 </div>
 
                 {isPremium && (
-                    <div className="px-5 py-3 rounded-xl bg-white/5 border border-white/5 w-full">
-                        <p className="text-[10px] text-center leading-relaxed" style={{ color: colors.muted }}>
+                    <div style={{ padding: '12px 20px', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.05)', width: '100%' }}>
+                        <p style={{ fontSize: '10px', textAlign: 'center', lineHeight: '1.6', color: colors.muted }}>
                             {analysis.attachment_description?.slice(0, 100)}...
                         </p>
                     </div>
@@ -328,24 +373,24 @@ export function SharedCaptureCard({ analysis, isPremium = false }: { analysis: a
             </div>
 
             {/* CTA/Footer */}
-            <div className="mt-4 flex flex-col items-center gap-3 z-10">
-                <div className="flex flex-col items-center gap-1">
-                    <span className="text-[10px] font-bold tracking-tight text-white/40 italic">talk-ka-noko.vercel.app</span>
-                    <span className="text-[8px] font-medium opacity-30 text-white uppercase tracking-widest">전문 AI 심리 데이터 분석 플랫폼</span>
+            <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', zIndex: 10 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 'bold', fontStyle: 'italic', color: 'rgba(255, 255, 255, 0.4)' }}>talk-ka-noko.vercel.app</span>
+                    <span style={{ fontSize: '8px', fontWeight: 500, opacity: 0.3, color: colors.white, textTransform: 'uppercase', letterSpacing: '0.2em' }}>전문 AI 심리 데이터 분석 플랫폼</span>
                 </div>
                 {!isPremium && (
-                    <div className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 flex items-center gap-2 opacity-60">
-                        <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
-                            <span className="text-[10px] font-bold text-primary italic">!</span>
+                    <div style={{ padding: '8px 16px', borderRadius: '8px', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.6 }}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '4px', backgroundColor: 'rgba(254, 229, 0, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontSize: '10px', fontWeight: 'bold', color: colors.primary, fontStyle: 'italic' }}>!</span>
                         </div>
-                        <span className="text-[9px] font-bold text-white/50">친구에게 링크를 공유하고 당신의 점수를 확인하세요!</span>
+                        <span style={{ fontSize: '9px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.5)' }}>친구에게 링크를 공유하고 당신의 점수를 확인하세요!</span>
                     </div>
                 )}
             </div>
 
             {/* Distinctive Watermark */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-40deg] pointer-events-none z-0">
-                <span className="text-[120px] font-black uppercase whitespace-nowrap opacity-[0.02]" style={{ color: colors.white }}>
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-40deg)', pointerEvents: 'none', zIndex: 0 }}>
+                <span style={{ fontSize: '120px', fontWeight: 900, textTransform: 'uppercase', whiteSpace: 'nowrap', opacity: 0.02, color: colors.white }}>
                     {isPremium ? 'PREMIUM ACCESS' : 'TALK KA NOKO'}
                 </span>
             </div>
