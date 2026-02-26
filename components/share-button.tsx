@@ -15,6 +15,7 @@ import {
 
 interface ShareButtonProps {
     analysis: any
+    onShareSuccess?: () => void
 }
 
 // Custom Kakao Icon (since lucide doesn't have it)
@@ -32,7 +33,7 @@ const BlogIcon = () => (
     </div>
 )
 
-export function ShareButton({ analysis }: ShareButtonProps) {
+export function ShareButton({ analysis, onShareSuccess }: ShareButtonProps) {
     const [isGenerating, setIsGenerating] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const shareUrl = "https://talk-ka-noko.vercel.app/"
@@ -40,6 +41,7 @@ export function ShareButton({ analysis }: ShareButtonProps) {
     const handleCopyUrl = () => {
         navigator.clipboard.writeText(shareUrl)
         toast.success("URL이 복사되었습니다!")
+        if (onShareSuccess) onShareSuccess()
     }
 
     const handleCapture = async (type: 'download' | 'share') => {
@@ -76,6 +78,7 @@ export function ShareButton({ analysis }: ShareButtonProps) {
                         text: "우리의 분석 리포트야! 보고 너의 생각도 알려줘. #톡까놓고 #관계분석",
                         url: shareUrl
                     })
+                    if (onShareSuccess) onShareSuccess()
                 } else {
                     handleCopyUrl()
                     toast.info("현재 브라우저는 직접 공유를 지원하지 않아 링크를 복사했습니다! 앱에 붙여넣어 전달해 주세요.")

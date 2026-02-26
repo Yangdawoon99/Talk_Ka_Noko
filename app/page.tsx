@@ -16,6 +16,7 @@ import { ContextSurvey } from "@/components/context-survey"
 import { ActivityHeatmap } from "@/components/activity-heatmap"
 import { PaymentModal } from "@/components/payment-modal"
 import { PremiumDetailedReport } from "@/components/premium-detailed-report"
+import { RelationshipRadar } from "@/components/relationship-radar"
 import { ShareButton, SharedCaptureCard } from "@/components/share-button"
 import { toast, Toaster } from "sonner"
 
@@ -55,6 +56,7 @@ function HomeContent() {
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false)
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
   const [isPremiumUser, setIsPremiumUser] = useState(false)
+  const [isShared, setIsShared] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
@@ -233,6 +235,22 @@ function HomeContent() {
 
             <ActivityHeatmap hourlyData={analysis.stats?.hourly} />
 
+            {/* SHARED or PREMIUM users see Relationship Radar */}
+            {(isPremiumUser || isShared) && analysis.radar_data && (
+              <div className="animate-in fade-in zoom-in duration-700 bg-secondary/10 p-6 rounded-3xl border border-white/5">
+                <div className="flex items-center gap-2 mb-4 px-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <h3 className="text-sm font-bold text-foreground font-title uppercase tracking-widest">인공지능 정밀 밸런스</h3>
+                </div>
+                <RelationshipRadar data={analysis.radar_data} />
+                {isShared && !isPremiumUser && (
+                  <p className="mt-4 text-[10px] text-center text-primary/80 font-bold animate-pulse">
+                    ✅ 공유 완료! 레이더 차트가 잠금 해제되었습니다.
+                  </p>
+                )}
+              </div>
+            )}
+
             {aiError && (
               <div className="p-6 rounded-2xl bg-destructive/10 border border-destructive/20 flex flex-col gap-4 animate-in fade-in duration-500">
                 <div className="flex flex-col gap-1">
@@ -280,6 +298,27 @@ function HomeContent() {
 
               {!isPremiumUser && (
                 <div className="space-y-6">
+                  {/* Share to partially unlock */}
+                  {!isShared && (
+                    <div className="p-6 rounded-2xl bg-primary/5 border border-dashed border-primary/30 flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-bold text-foreground">레이더 차트 잠금 해제</h4>
+                        <span className="text-[10px] font-black text-primary px-2 py-0.5 rounded-full bg-primary/10">FREE UNLOCK</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        현재 분석 결과를 공유(혹은 링크 복사)하시면 <br />
+                        두 사람의 <strong>5가지 관계 밸런스 데이터</strong>를 무료로 공개합니다!
+                      </p>
+                      <ShareButton
+                        analysis={analysis}
+                        onShareSuccess={() => {
+                          setIsShared(true)
+                          toast.success("레이더 차트가 잠금 해제되었습니다!")
+                        }}
+                      />
+                    </div>
+                  )}
+
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 px-2">
                       <Lock className="w-4 h-4 text-primary" />
@@ -294,7 +333,11 @@ function HomeContent() {
                         <span className="text-[10px] font-bold text-primary px-2 py-0.5 rounded-full bg-primary/10">LOCKED</span>
                       </div>
 
-                      <div className="flex flex-col gap-2 blur-sm select-none opacity-40">
+                      <div className="flex flex-col gap-2 blur-[6px] select-none opacity-20 pointer-events-none transform scale-[0.98]">
+                        <div className="p-3 bg-white/5 rounded-xl border border-white/10 space-y-2">
+                          <div className="h-2 w-20 bg-primary/40 rounded-full" />
+                          <div className="h-12 w-full bg-white/10 rounded-lg" />
+                        </div>
                         <div className="flex items-center gap-2">
                           <div className="w-full h-2 shadow-inner bg-border/50 rounded-full overflow-hidden">
                             <div className="h-full bg-primary w-[70%]" />
@@ -303,10 +346,12 @@ function HomeContent() {
                         </div>
                       </div>
 
-                      <p className="text-xs text-muted-foreground italic leading-relaxed">
-                        AI가 분석한 심리학적 인사이트와 MZ 애착 유형,<br />
-                        그리고 두 사람의 핵심 대화 키워드를 확인해보세요.
-                      </p>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-xs text-muted-foreground italic leading-relaxed">
+                          AI가 분석한 정밀 심리학적 리포트와 관계 솔루션,<br />
+                          그리고 상대방의 <strong>애착 유형</strong>을 확인해보세요.
+                        </p>
+                      </div>
 
                       <button
                         onClick={(e) => {
@@ -314,10 +359,10 @@ function HomeContent() {
                           setIsPaymentModalOpen(true)
                         }}
                         type="button"
-                        className="w-full py-4 px-6 rounded-xl bg-[#FEE500] text-[#3A1D1D] font-extrabold shadow-lg shadow-yellow-500/10 hover:scale-[1.01] active:scale-[0.99] transition-all text-sm flex items-center justify-center gap-2"
+                        className="w-full py-4 px-6 rounded-xl bg-[#FEE500] text-[#3A1D1D] font-extrabold shadow-lg shadow-yellow-500/10 hover:scale-[1.01] active:scale-[0.99] transition-all text-sm flex items-center justify-center gap-2 group"
                       >
-                        <Sparkles className="w-4 h-4 fill-[#3A1D1D]" />
-                        상세 리포트 잠금 해제하기
+                        <Sparkles className="w-4 h-4 fill-[#3A1D1D] group-hover:rotate-12 transition-transform" />
+                        프리미엄 정밀 분석 (1,000원)
                       </button>
                     </div>
                   </div>

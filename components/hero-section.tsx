@@ -12,8 +12,8 @@ export function HeroSection() {
         <span className="text-primary italic">1분 만에</span> 팩트체크
       </h2>
       <p className="text-sm sm:text-base leading-relaxed text-muted-foreground/80 max-w-[280px] font-medium">
-        무의식 속에 숨겨진 두 사람의 진짜 관계,<br />
-        국내 최고 사양 AI가 정밀하게 해독합니다.
+        커피 한 잔보다 저렴한 <span className="text-foreground font-bold">1,000원</span>으로<br />
+        두 사람의 진짜 마음을 팩트체크 하세요.
       </p>
     </section>
   )

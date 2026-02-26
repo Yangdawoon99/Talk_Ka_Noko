@@ -103,7 +103,7 @@ export function PaymentModal({ isOpen, onOpenChange, onSuccess }: PaymentModalPr
                                 onClick={handleNextStep}
                                 className="h-14 bg-primary text-primary-foreground font-black text-lg hover:scale-[1.02] active:scale-[0.98] transition-all rounded-2xl shadow-xl shadow-primary/10"
                             >
-                                9,900원 ($7.50) 결제하기
+                                1,000원 ($0.80) 결제하기
                             </Button>
 
                             <p className="text-[10px] text-center text-muted-foreground/60 px-4 leading-relaxed">
@@ -119,8 +119,8 @@ export function PaymentModal({ isOpen, onOpenChange, onSuccess }: PaymentModalPr
                                     <span className="text-sm font-bold text-white">프리미엄 정밀 분석 리포트</span>
                                 </div>
                                 <div className="flex flex-col items-end">
-                                    <span className="text-lg font-black text-primary">$7.50</span>
-                                    <span className="text-[9px] text-muted-foreground">약 9,900원</span>
+                                    <span className="text-lg font-black text-primary">$0.80</span>
+                                    <span className="text-[9px] text-muted-foreground">약 1,100원</span>
                                 </div>
                             </div>
 
@@ -140,7 +140,7 @@ export function PaymentModal({ isOpen, onOpenChange, onSuccess }: PaymentModalPr
                                                     {
                                                         amount: {
                                                             currency_code: "USD",
-                                                            value: "7.50",
+                                                            value: "0.80",
                                                         },
                                                         description: "프리미엄 정밀 분석 리포트 (Talk-Ka-Noko)",
                                                     },
