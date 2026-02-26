@@ -60,7 +60,7 @@ export function PremiumDetailedReport({ analysis }: PremiumDetailedReportProps) 
                 <Card className="p-6 bg-[#FEE500]/5 border-[#FEE500]/20 relative overflow-hidden">
                     <div className="flex items-center gap-3 mb-2">
                         <Sparkles className="w-5 h-5 text-[#FEE500]" />
-                        <span className="text-xs font-bold text-[#FEE500] uppercase tracking-tighter">MZ Attachment Style</span>
+                        <span className="text-[10px] font-black text-[#FEE500] uppercase tracking-[0.2em]">Relationship Dynamics Persona</span>
                     </div>
                     <h2 className="text-3xl font-black text-[#FEE500] mb-2">{analysis.attachment_type}</h2>
                     <p className="text-sm text-muted-foreground leading-relaxed italic border-l-2 border-[#FEE500]/30 pl-3">
