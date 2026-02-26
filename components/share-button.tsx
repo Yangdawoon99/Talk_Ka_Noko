@@ -2,17 +2,45 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Share2, Download, Check, Sparkles, Instagram } from "lucide-react"
+import { Share2, Download, Check, Sparkles, Instagram, Copy, MessageCircle, ExternalLink, ImageIcon, Facebook, Twitter, Mail } from "lucide-react"
 import html2canvas from "html2canvas"
 import { toast } from "sonner"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface ShareButtonProps {
     analysis: any
 }
 
+// Custom Kakao Icon (since lucide doesn't have it)
+const KakaoIcon = () => (
+    <div className="w-10 h-10 bg-[#FEE500] rounded-2xl flex items-center justify-center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3C7.029 3 3 6.134 3 10c0 2.49 1.66 4.67 4.14 5.91-.18.66-.65 2.38-.74 2.76-.11.44.17.43.35.31.14-.09 2.27-1.54 3.19-2.17.34.05.7.09 1.06.09 4.971 0 9-3.134 9-7s-4.029-7-9-7z" fill="#3A1D1D" />
+        </svg>
+    </div>
+)
+
+const BlogIcon = () => (
+    <div className="w-10 h-10 bg-[#03C75A] rounded-2xl flex items-center justify-center">
+        <span className="text-white font-black text-xl">b</span>
+    </div>
+)
+
 export function ShareButton({ analysis }: ShareButtonProps) {
     const [isGenerating, setIsGenerating] = useState(false)
-    const [isCopied, setIsCopied] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const shareUrl = "https://talk-ka-noko.vercel.app/"
+
+    const handleCopyUrl = () => {
+        navigator.clipboard.writeText(shareUrl)
+        toast.success("URL이 복사되었습니다!")
+    }
 
     const handleCapture = async (type: 'download' | 'share') => {
         const element = document.getElementById("report-capture-area")
@@ -24,7 +52,7 @@ export function ShareButton({ analysis }: ShareButtonProps) {
         try {
             setIsGenerating(true)
             const canvas = await html2canvas(element, {
-                background: "#0a0a0a",
+                backgroundColor: "#0a0a0a",
                 scale: 2,
                 useCORS: true,
                 logging: false,
@@ -48,17 +76,14 @@ export function ShareButton({ analysis }: ShareButtonProps) {
                         text: "우리 관계, 톡까놓고 분석해봤어! 결과가 궁금하면 너도 해봐. #톡까놓고 #카톡분석",
                     })
                 } else {
-                    // Fallback to clipboard
                     const blob = await (await fetch(image)).blob()
                     try {
                         await navigator.clipboard.write([
                             new ClipboardItem({ "image/png": blob })
                         ])
-                        setIsCopied(true)
                         toast.success("이미지가 클립보드에 복사되었습니다!")
-                        setTimeout(() => setIsCopied(false), 2000)
                     } catch (err) {
-                        toast.error("공유 기능을 지원하지 않는 브라우저입니다.")
+                        toast.error("이미지를 저장하여 공유해 주세요.")
                     }
                 }
             }
@@ -70,31 +95,87 @@ export function ShareButton({ analysis }: ShareButtonProps) {
         }
     }
 
+    const shareOptions = [
+        { label: "블로그", icon: <BlogIcon />, onClick: () => window.open(`https://share.naver.com/share?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent("톡까놓고 관계분석")}`) },
+        { label: "인스타 스토리", icon: <div className="w-10 h-10 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 rounded-2xl flex items-center justify-center text-white"><Instagram className="w-6 h-6" /></div>, onClick: () => handleCapture('share') },
+        { label: "이미지 저장", icon: <div className="w-10 h-10 bg-indigo-500 rounded-2xl flex items-center justify-center text-white"><ImageIcon className="w-6 h-6" /></div>, onClick: () => handleCapture('download') },
+        {
+            label: "카카오톡", icon: <KakaoIcon />, onClick: () => {
+                if (navigator.share) {
+                    navigator.share({ url: shareUrl, title: "톡까놓고", text: "우리 관계, 톡까놓고 분석해봤어!" })
+                } else {
+                    toast.success("링크가 복사되었습니다! 카톡에 붙여넣어 주세요.")
+                    handleCopyUrl()
+                }
+            }
+        },
+        { label: "페이스북", icon: <div className="w-10 h-10 bg-[#1877F2] rounded-2xl flex items-center justify-center text-white"><Facebook className="w-6 h-6" /></div>, onClick: () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`) },
+        { label: "X (트위터)", icon: <div className="w-10 h-10 bg-black rounded-2xl flex items-center justify-center text-white"><Twitter className="w-6 h-6" /></div>, onClick: () => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("우리 관계 톡까놓고 분석해봤어!")}&url=${encodeURIComponent(shareUrl)}`) },
+        { label: "이메일", icon: <div className="w-10 h-10 bg-gray-500 rounded-2xl flex items-center justify-center text-white"><Mail className="w-6 h-6" /></div>, onClick: () => window.open(`mailto:?subject=${encodeURIComponent("톡까놓고 분석 결과")}&body=${encodeURIComponent(shareUrl)}`) },
+        { label: "기타", icon: <div className="w-10 h-10 bg-gray-200 rounded-2xl flex items-center justify-center text-gray-600"><ExternalLink className="w-6 h-6" /></div>, onClick: () => navigator.share ? navigator.share({ url: shareUrl }) : handleCopyUrl() },
+    ]
+
     return (
         <div className="flex flex-col gap-3 px-4">
-            <div className="flex gap-2">
-                <Button
-                    onClick={() => handleCapture('share')}
-                    disabled={isGenerating}
-                    variant="outline"
-                    className="flex-1 h-12 rounded-xl bg-secondary/50 border-border/40 gap-2 hover:bg-secondary"
-                >
-                    {isCopied ? <Check className="w-4 h-4 text-green-400" /> : <Instagram className="w-4 h-4 text-pink-500" />}
-                    <span className="text-xs font-bold">인스타/공유하기</span>
-                </Button>
-                <Button
-                    onClick={() => handleCapture('download')}
-                    disabled={isGenerating}
-                    variant="outline"
-                    className="w-12 h-12 rounded-xl bg-secondary/50 border-border/40 p-0 hover:bg-secondary"
-                    title="이미지 다운로드"
-                >
-                    <Download className="w-4 h-4 text-muted-foreground" />
-                </Button>
-            </div>
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogTrigger asChild>
+                    <Button
+                        className="w-full h-14 rounded-2xl bg-[#FEE500] text-[#3A1D1D] font-black shadow-lg shadow-yellow-500/10 hover:bg-[#FEE500]/90 transition-all text-base flex items-center justify-center gap-2"
+                    >
+                        <Share2 className="w-5 h-5" />
+                        분석 결과 공유하기
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-[360px] rounded-[32px] p-8 bg-white border-none gap-6 sm:rounded-[32px]">
+                    <DialogHeader className="p-0">
+                        <DialogTitle className="text-center text-xl font-bold text-gray-900 border-b pb-4">공유하기</DialogTitle>
+                    </DialogHeader>
+
+                    <div className="grid grid-cols-4 gap-y-6 gap-x-2 py-2">
+                        {shareOptions.map((opt, i) => (
+                            <button
+                                key={i}
+                                onClick={() => {
+                                    opt.onClick()
+                                    if (opt.label !== "스토리" && opt.label !== "이미지 저장") setIsModalOpen(false)
+                                }}
+                                className="flex flex-col items-center gap-2 group active:scale-95 transition-transform"
+                            >
+                                <div className="shadow-sm group-hover:shadow-md transition-shadow">
+                                    {opt.icon}
+                                </div>
+                                <span className="text-[10px] font-medium text-gray-600">{opt.label}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center gap-2 p-1.5 bg-gray-50 border border-gray-100 rounded-xl mt-2">
+                        <div className="flex-1 truncate px-2 text-[11px] text-gray-400 font-medium">
+                            {shareUrl}
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCopyUrl}
+                            className="bg-white border border-gray-200 text-gray-700 text-[10px] font-bold h-8 px-3 rounded-lg hover:bg-gray-50"
+                        >
+                            URL 복사
+                        </Button>
+                    </div>
+
+                    {isGenerating && (
+                        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-center items-center justify-center rounded-[32px] z-50">
+                            <div className="flex flex-col items-center gap-3">
+                                <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                                <span className="text-xs font-bold text-gray-500">이미지 생성 중...</span>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
 
             <p className="text-[10px] text-center text-muted-foreground">
-                이미지 생성은 수초가 걸릴 수 있습니다.
+                결과를 공유하여 친구들과 점수를 비교해보세요!
             </p>
         </div>
     )
