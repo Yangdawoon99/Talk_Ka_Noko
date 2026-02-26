@@ -59,7 +59,27 @@ function HomeContent() {
   useEffect(() => {
     setIsMounted(true)
     console.log("CLIENT_LOG: HomeContent mounted, hydration complete")
+
+    // Recover data from localStorage
+    try {
+      const savedParsedData = localStorage.getItem("talk_ka_noko_parsedData")
+      const savedAnalysis = localStorage.getItem("talk_ka_noko_analysis")
+      const savedContext = localStorage.getItem("talk_ka_noko_surveyContext")
+
+      if (savedParsedData) setParsedData(JSON.parse(savedParsedData))
+      if (savedAnalysis) setAnalysis(JSON.parse(savedAnalysis))
+      if (savedContext) setSurveyContext(JSON.parse(savedContext))
+    } catch (e) {
+      console.error("Failed to recover from localStorage", e)
+    }
   }, [])
+
+  // Sync state to localStorage
+  useEffect(() => {
+    if (parsedData) localStorage.setItem("talk_ka_noko_parsedData", JSON.stringify(parsedData))
+    if (analysis) localStorage.setItem("talk_ka_noko_analysis", JSON.stringify(analysis))
+    if (surveyContext) localStorage.setItem("talk_ka_noko_surveyContext", JSON.stringify(surveyContext))
+  }, [parsedData, analysis, surveyContext])
 
   useEffect(() => {
     console.log("STATE_CHANGE: isPaymentModalOpen =", isPaymentModalOpen)
@@ -82,6 +102,18 @@ function HomeContent() {
   useEffect(() => {
     console.log("STATE_CHANGE: parsedData =", parsedData?.length, "items")
   }, [parsedData])
+
+  const handleReset = () => {
+    setParsedData(null)
+    setAnalysis(null)
+    setSurveyContext(null)
+    setAiError(null)
+    setShowSurvey(false)
+    localStorage.removeItem("talk_ka_noko_parsedData")
+    localStorage.removeItem("talk_ka_noko_analysis")
+    localStorage.removeItem("talk_ka_noko_surveyContext")
+    toast.success("초기화되었습니다. 새로운 파일을 업로드 해주세요!")
+  }
 
   if (!isMounted) {
     return (
@@ -292,7 +324,6 @@ function HomeContent() {
                 </div>
               )}
 
-              {/* 2. Premium Detailed Analysis (Unlocked) */}
               {isPremiumUser && (
                 <div className="mt-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                   <PremiumDetailedReport analysis={analysis} />
@@ -300,10 +331,31 @@ function HomeContent() {
                     <ShareButton analysis={analysis} />
                   </div>
 
+                  <div className="pt-4 flex justify-center">
+                    <button
+                      onClick={handleReset}
+                      className="text-xs text-muted-foreground/60 hover:text-primary transition-colors flex items-center gap-2 underline underline-offset-4"
+                    >
+                      새로운 대화 분석하기
+                    </button>
+                  </div>
+
                   {/* Capture Area (Hidden) */}
                   <div style={{ position: 'absolute', left: '-9999px', top: '0' }}>
                     <SharedCaptureCard analysis={analysis} />
                   </div>
+                </div>
+              )}
+
+              {/* Reset button for Basic users too */}
+              {!isPremiumUser && analysis && (
+                <div className="pt-8 flex justify-center pb-12">
+                  <button
+                    onClick={handleReset}
+                    className="text-xs text-muted-foreground/60 hover:text-primary transition-colors flex items-center gap-2 underline underline-offset-4"
+                  >
+                    새로운 대화 분석하기
+                  </button>
                 </div>
               )}
             </div>
