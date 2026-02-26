@@ -96,23 +96,36 @@ export function ShareButton({ analysis }: ShareButtonProps) {
     }
 
     const shareOptions = [
-        { label: "블로그", icon: <BlogIcon />, onClick: () => window.open(`https://share.naver.com/share?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent("톡까놓고 관계분석")}`) },
-        { label: "인스타 스토리", icon: <div className="w-10 h-10 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 rounded-2xl flex items-center justify-center text-white"><Instagram className="w-6 h-6" /></div>, onClick: () => handleCapture('share') },
+        { label: "블로그", icon: <BlogIcon />, onClick: () => window.open(`https://blog.naver.com/openapi/share?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent("톡까놓고 관계분석 리포트")}`, '_blank') },
+        {
+            label: "인스타 스토리", icon: <div className="w-10 h-10 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 rounded-2xl flex items-center justify-center text-white"><Instagram className="w-6 h-6" /></div>, onClick: () => {
+                if (navigator.share && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                    handleCapture('share')
+                } else {
+                    toast.info("이미지를 저장한 후 인스타그램 스토리에 업로드 해주세요! (PC는 이미지만 저장)")
+                    handleCapture('download')
+                }
+            }
+        },
         { label: "이미지 저장", icon: <div className="w-10 h-10 bg-indigo-500 rounded-2xl flex items-center justify-center text-white"><ImageIcon className="w-6 h-6" /></div>, onClick: () => handleCapture('download') },
         {
             label: "카카오톡", icon: <KakaoIcon />, onClick: () => {
+                const kakaourl = `https://sharer.kakao.com/talk/friends/picker/link?url=${encodeURIComponent(shareUrl)}`
+                window.open(kakaourl, '_blank', 'width=450,height=600')
+            }
+        },
+        { label: "페이스북", icon: <div className="w-10 h-10 bg-[#1877F2] rounded-2xl flex items-center justify-center text-white"><Facebook className="w-6 h-6" /></div>, onClick: () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank') },
+        { label: "X (트위터)", icon: <div className="w-10 h-10 bg-black rounded-2xl flex items-center justify-center text-white"><Twitter className="w-6 h-6" /></div>, onClick: () => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("우리 관계 톡까놓고 분석해봤어!")}&url=${encodeURIComponent(shareUrl)}`, '_blank') },
+        { label: "이메일", icon: <div className="w-10 h-10 bg-gray-500 rounded-2xl flex items-center justify-center text-white"><Mail className="w-6 h-6" /></div>, onClick: () => window.open(`mailto:?subject=${encodeURIComponent("톡까놓고 분석 결과")}&body=${encodeURIComponent(shareUrl)}`) },
+        {
+            label: "기타", icon: <div className="w-10 h-10 bg-gray-200 rounded-2xl flex items-center justify-center text-gray-600"><ExternalLink className="w-6 h-6" /></div>, onClick: () => {
                 if (navigator.share) {
                     navigator.share({ url: shareUrl, title: "톡까놓고", text: "우리 관계, 톡까놓고 분석해봤어!" })
                 } else {
-                    toast.success("링크가 복사되었습니다! 카톡에 붙여넣어 주세요.")
                     handleCopyUrl()
                 }
             }
         },
-        { label: "페이스북", icon: <div className="w-10 h-10 bg-[#1877F2] rounded-2xl flex items-center justify-center text-white"><Facebook className="w-6 h-6" /></div>, onClick: () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`) },
-        { label: "X (트위터)", icon: <div className="w-10 h-10 bg-black rounded-2xl flex items-center justify-center text-white"><Twitter className="w-6 h-6" /></div>, onClick: () => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("우리 관계 톡까놓고 분석해봤어!")}&url=${encodeURIComponent(shareUrl)}`) },
-        { label: "이메일", icon: <div className="w-10 h-10 bg-gray-500 rounded-2xl flex items-center justify-center text-white"><Mail className="w-6 h-6" /></div>, onClick: () => window.open(`mailto:?subject=${encodeURIComponent("톡까놓고 분석 결과")}&body=${encodeURIComponent(shareUrl)}`) },
-        { label: "기타", icon: <div className="w-10 h-10 bg-gray-200 rounded-2xl flex items-center justify-center text-gray-600"><ExternalLink className="w-6 h-6" /></div>, onClick: () => navigator.share ? navigator.share({ url: shareUrl }) : handleCopyUrl() },
     ]
 
     return (
