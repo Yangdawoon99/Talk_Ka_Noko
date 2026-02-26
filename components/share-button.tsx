@@ -67,24 +67,18 @@ export function ShareButton({ analysis }: ShareButtonProps) {
                 link.click()
                 toast.success("이미지가 저장되었습니다!")
             } else if (type === 'share') {
-                if (navigator.share) {
+                if (typeof navigator.share !== 'undefined') {
                     const blob = await (await fetch(image)).blob()
                     const file = new File([blob], "analysis.png", { type: "image/png" })
                     await navigator.share({
                         files: [file],
                         title: "톡까놓고 분석 결과",
-                        text: "우리 관계, 톡까놓고 분석해봤어! 결과가 궁금하면 너도 해봐. #톡까놓고 #카톡분석",
+                        text: "우리의 분석 리포트야! 보고 너의 생각도 알려줘. #톡까놓고 #관계분석",
+                        url: shareUrl
                     })
                 } else {
-                    const blob = await (await fetch(image)).blob()
-                    try {
-                        await navigator.clipboard.write([
-                            new ClipboardItem({ "image/png": blob })
-                        ])
-                        toast.success("이미지가 클립보드에 복사되었습니다!")
-                    } catch (err) {
-                        toast.error("이미지를 저장하여 공유해 주세요.")
-                    }
+                    handleCopyUrl()
+                    toast.info("현재 브라우저는 직접 공유를 지원하지 않아 링크를 복사했습니다! 앱에 붙여넣어 전달해 주세요.")
                 }
             }
         } catch (err) {
@@ -100,10 +94,10 @@ export function ShareButton({ analysis }: ShareButtonProps) {
         {
             label: "인스타 DM", icon: <div className="w-10 h-10 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 rounded-2xl flex items-center justify-center text-white"><Instagram className="w-6 h-6" /></div>, onClick: () => {
                 if (typeof navigator.share !== 'undefined') {
-                    navigator.share({ url: shareUrl, title: "톡까놓고", text: "우리 관계, 톡까놓고 분석해봤어!" })
+                    handleCapture('share')
                 } else {
                     handleCopyUrl()
-                    toast.info("링크가 복사되었습니다! 인스타그램 DM에 붙여넣어 주세요.")
+                    toast.info("인스타그램 DM에 붙여넣을 수 있도록 링크를 복사했습니다!")
                 }
             }
         },
@@ -111,10 +105,10 @@ export function ShareButton({ analysis }: ShareButtonProps) {
         {
             label: "카카오톡", icon: <KakaoIcon />, onClick: () => {
                 if (typeof navigator.share !== 'undefined') {
-                    navigator.share({ url: shareUrl, title: "톡까놓고", text: "우리 관계, 톡까놓고 분석해봤어!" })
+                    handleCapture('share')
                 } else {
                     handleCopyUrl()
-                    toast.success("링크가 복사되었습니다! 카카오톡 친구에게 전달해 주세요.")
+                    toast.info("카카오톡 친구에게 전달할 수 있도록 링크를 복사했습니다!")
                 }
             }
         },
