@@ -3,34 +3,33 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 import { parseKakaoTalk } from "@/lib/parser"
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
-  systemInstruction: `당신은 대한민국 최고의 전문 심리 상담가이자 '관계 역동 분석' 전문가입니다. 
-제공되는 대화 데이터와 사용자 맥락을 심리학적 이론(애착 이론, 고트만 이론, 교류 분석 등)을 바탕으로 날카롭고 공감 가게 분석해주세요.
+const SYSTEM_INSTRUCTION = `당신은 2026년 현재 대한민국 최고의 전문 심리 상담가이자 '관계 정밀 역동 분석' 전문가입니다. (오늘 날짜: 2026년 2월 26일)
 
-[분석 핵심 원칙]
-1. **표면 아래 읽기**: 단순히 단어를 세는 것이 아니라, 문장 뒤에 숨겨진 감정적 의도(감정적 요청, 회피, 인정 욕구 등)를 포착하세요.
-2. **관계 역동**: 두 사람 사이의 '권력 균형(주도성)'과 '정서적 상호성(공감 비율)'을 냉철하게 분석하세요.
-3. **전문적 용어 사용**: '자기 개방(Self-disclosure)', '안정적 기지(Secure base)', '정서적 미러링' 등 전문적인 심리학 용어를 섞어 리포트의 신뢰도를 높이세요.
-4. **MZ 트렌드 반영**: MZ세대의 연애 스타일과 소통 방식을 이해하고, 그들이 공감할 수 있는 '힙한' 통찰을 제공하세요.
+제공되는 대화 데이터와 사용자 맥락을 최신 심리학 이론(애착 이론, 고트만 관계 분석, 교류 분석 등)을 바탕으로 매우 날카롭고 깊이 있게 해독해주세요.
+
+[2026년형 분석 핵심 지침]
+1. **정교한 시계열 분석**: 대화가 현재(2026년)를 기준으로 얼마나 과거부터 이어져 온 것인지 파악하고, 시간 흐름에 따른 감정의 퇴색이나 농익음을 분석하세요.
+2. **비언어적 실마리 포착**: 텍스트 뒤에 숨겨진 '침묵의 속도', '응답의 일관성', '자기 노출의 수위'를 통해 표면적인 말 이상의 심리적 의도를 읽어내세요.
+3. **전문적 통찰**: '신경 가소성', '정서적 상호 조절(Co-regulation)', '안정적 애착의 재구성' 등 2020년대 중반의 최신 상담 트렌드 용어를 활용하여 신뢰도를 극대화하세요.
+4. **MBTI 스타일의 페르소나**: 관계를 정의할 때 '신중한 중재자', '열정적인 조력자', '독립적인 관찰자', '대담한 수호자', '조화로운 리더' 등 전문적이고 세련된 명칭을 부여하세요.
 
 [워드클라우드 추출 규칙]
-- **노이즈 제거 필수**: 'ㅋㅋ', 'ㅎㅎ', '웅', '어', '네', '아', '진짜', '너무' 등 의미 없는 감탄사나 조사는 절대 포함하지 마세요.
-- **관계 상징어**: 두 사람의 취미, 자주 가는 곳, 서로를 지칭하는 특별한 단어, 핵심 주제어 위주로 15개를 추출하세요.
+- **노이즈 필터링 2.0**: 'ㅋㅋ', 'ㅎㅎ', '웅', '어', '네' 등 무의미한 감탄사는 100% 제외하십시오.
+- **관계의 본질**: 두 사람의 고유한 애칭, 공통 관심사, 갈등의 중심이 되는 핵심 키워드 15개를 엄선하세요.
 
-[응답 가이드라인]
-반드시 다음 JSON 형식을 엄격히 지켜 응답하세요:
+[응답 가이드라인 (JSON 전용)]
+반드시 다음 구조를 유지하여 응답하세요:
 {
   "score": 숫자 (L-Score, 0-100),
-  "keyword": "관계를 한마디로 정의하는 임팩트 있는 키워드",
-  "active_sender": "주도자 이름",
+  "keyword": "관계를 상징하는 날카롭고 시적인 한마디",
+  "active_sender": "대화의 흐름을 주도하는 인물",
   "nighttime_rate": 숫자 (야간 대화 비중),
-  "summary": "전체 요약 (심리학적 근거 포함, 80자 내외)",
-  "detailed_analysis": "심층 리포트 (심리학적 통찰과 구체적 예시가 담긴 500자 이상의 장문)",
-  "psychological_insight": "심리적 역동 분석 (두 사람의 심리적 기제 분석, 300자 내외)",
-  "attachment_type": "관계 애착 성향 (MBTI 스타일의 세련된 표현 - 예: '신중한 중재자', '열정적인 조력자', '독립적인 관찰자', '대담한 수호자', '조화로운 리더' 등 5가지 중 선택)",
-  "attachment_description": "유형에 대한 전문적인 심리학적 진단과 그 이유 설명",
-  "compatibility_tips": ["구체적인 대화 스킬 조언", "관계 개선을 위한 실천 과제", "서로 주의해야 할 트리거"],
+  "summary": "전체 요약 (전문 심리학적 근거 포함, 80자 내외)",
+  "detailed_analysis": "심층 리포트 (통계적 근거와 심리적 통찰이 담긴 500자 이상의 초장문)",
+  "psychological_insight": "심리적 역동 분석 (숨겨진 애착 동기와 상호 작용 패턴, 300자 내외)",
+  "attachment_type": "관계 애착 성향 (예: '신중한 중재자' 스타일 등)",
+  "attachment_description": "유형에 대한 2026년 기준의 전문적인 진단 설명",
+  "compatibility_tips": ["실행 가능한 구체적 소통법", "관계의 장기적 유지를 위한 과제", "감정적 트리거 주의점"],
   "wordcloud": [{"text": "단어1", "value": 10}, {"text": "단어2", "value": 8}, ...],
   "sentiment_score": 0-100,
   "radar_data": {
@@ -40,41 +39,40 @@ const model = genAI.getGenerativeModel({
     "proactivity": 0-100,
     "consistency": 0-100
   }
-}`,
-  generationConfig: {
-    responseMimeType: "application/json",
-    temperature: 0.7
-  }
-})
+}`
+
+const GENERATION_CONFIG = {
+  responseMimeType: "application/json",
+  temperature: 0.7
+}
+
+// Model Fallback List (ordered by priority)
+const AVAILABLE_MODELS = [
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash"
+]
 
 export async function POST(req: NextRequest) {
   console.log(`[${new Date().toISOString()}] LOG: API POST hit`)
   try {
     const contentType = req.headers.get("content-type") || ""
 
-    // 1. JSON Request (Analysis with Context)
     if (contentType.includes("application/json")) {
-      const start = Date.now()
-      console.log(`[${new Date().toISOString()}] LOG: Analysis Request Start`)
       const { data: parsedData, context } = await req.json()
-      console.log(`[${new Date().toISOString()}] LOG: Data loaded (${parsedData?.length} msgs)`)
 
       let aiAnalysis = null
       let aiError = null
 
       if (parsedData && parsedData.length > 0) {
-        try {
-          const stats = calculateStats(parsedData)
-          const statsSummary = summarizeStats(stats)
+        const stats = calculateStats(parsedData)
+        const statsSummary = summarizeStats(stats)
+        const sanitize = (text: string) => text.replace(/❤️/g, "(하트)").replace(/[^\u0000-\uFFFF]/g, "")
+        const chatSample = parsedData.slice(-80).map((m: any) =>
+          `${sanitize(m.sender || "알수없음")}: ${sanitize(m.message)}`
+        ).join("\n")
 
-          // Sanitize data for Gemini (Avoid complex emojis in prompt if they cause issues)
-          const sanitize = (text: string) => text.replace(/❤️/g, "(하트)").replace(/[^\u0000-\uFFFF]/g, "")
-
-          const chatSample = parsedData.slice(-80).map((m: any) =>
-            `${sanitize(m.sender || "알수없음")}: ${sanitize(m.message)}`
-          ).join("\n")
-
-          const prompt = `
+        const prompt = `
 [사용자 정보 및 관계 맥락]
 - 관계: ${context?.relationType || "미지정"}
 - 기간: ${context?.duration || "미지정"}
@@ -96,27 +94,40 @@ ${chatSample}
 5. 소통 개선을 위한 구체적 솔루션 (compatibility_tips)
 6. 5가지 관계 지표 점수 (radar_data)`
 
-          const result = await model.generateContent(prompt)
-          const response = await result.response
-          const content = response.text()
+        // --- ATTEMPT ANALYSIS WITH FALLBACK LOGIC ---
+        for (const modelName of AVAILABLE_MODELS) {
+          try {
+            console.log(`[${new Date().toISOString()}] LOG: Attempting analysis with ${modelName}`)
+            const model = genAI.getGenerativeModel({
+              model: modelName,
+              systemInstruction: SYSTEM_INSTRUCTION,
+              generationConfig: GENERATION_CONFIG
+            })
 
-          if (content) {
-            try {
-              // Extract JSON from potential markdown blocks
+            const result = await model.generateContent(prompt)
+            const response = await result.response
+            const content = response.text()
+
+            if (content) {
               const jsonMatch = content.match(/\{[\s\S]*\}/)
               const cleanJson = jsonMatch ? jsonMatch[0] : content
               aiAnalysis = {
                 ...JSON.parse(cleanJson),
-                stats: stats
+                stats: stats,
+                modelUsed: modelName // Track which model succeeded
               }
-            } catch (jsonErr) {
-              console.error("JSON Parse Error:", jsonErr, "Raw Content:", content)
-              aiError = "AI 응답 형식 오류가 발생했습니다. 다시 시도해 주세요."
+              aiError = null // Clear any previous errors if a fallback succeeds
+              break // SUCCESS! Exit the loop
             }
+          } catch (err: any) {
+            console.error(`[${new Date().toISOString()}] ERROR: Model ${modelName} failed`, err.message)
+            aiError = `AI 모델(${modelName}) 처리 중 오류가 발생했습니다. 다음 모델로 재시도합니다.`
+            // Continue to the next model in the loop
           }
-        } catch (err: any) {
-          console.error("Gemini Analysis Failed:", err)
-          aiError = err.message || "AI 분석 중 오류가 발생했습니다."
+        }
+
+        if (!aiAnalysis && aiError) {
+          aiError = "모든 AI 모델의 가용량을 초과했거나 분석에 실패했습니다. 잠시 후 다시 시도해 주세요."
         }
       }
 
